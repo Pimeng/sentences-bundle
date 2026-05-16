@@ -1,7 +1,7 @@
 import { getSentences, getAllSentences } from '../lib/data.js';
 import { jsonResponse, errorResponse, getRandomItems } from '../lib/utils.js';
 
-export function onRequestGet(context) {
+export async function onRequestGet(context) {
   try {
     const url = new URL(context.request.url);
     const category = url.searchParams.get('category');
@@ -10,12 +10,12 @@ export function onRequestGet(context) {
     let sentences;
 
     if (category) {
-      sentences = getSentences(category);
+      sentences = await getSentences(category);
       if (!sentences) {
         return errorResponse('Invalid category', 400);
       }
     } else {
-      sentences = getAllSentences();
+      sentences = await getAllSentences();
     }
 
     if (!sentences || sentences.length === 0) {

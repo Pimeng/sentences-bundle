@@ -1,15 +1,6 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const sentencesDir = path.resolve(__dirname, '../../sentences');
-const categoriesPath = path.resolve(__dirname, '../../categories.json');
-
 const KEEP_FIELDS = ['id', 'uuid', 'hitokoto', 'type', 'from', 'from_who', 'length'];
 
-let categoriesCache = null;
-const sentencesCache = {};
+const cache = {};
 
 function cleanSentence(item) {
   const obj = {};
@@ -21,33 +12,46 @@ function cleanSentence(item) {
   return obj;
 }
 
-export function getCategories() {
-  if (!categoriesCache) {
-    categoriesCache = JSON.parse(fs.readFileSync(categoriesPath, 'utf8'));
+async function fetchJson(url) {
+  if (cache[url]) {
+    return cache[url];
   }
-  return categoriesCache;
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch ${url}: ${res.status}`);
+  }
+  const data = await res.json();
+  cache[url] = data;
+  return data;
 }
 
-export function getSentences(category) {
-  const categories = getCategories();
+export async function getCategories() {
+  return fetchJson('/categories.json');
+}
+
+export async function getSentences(category) {
+  const categories = await getCategories();
   const keys = categories.map(c => c.key);
   if (!keys.includes(category)) {
     return null;
   }
-  if (!sentencesCache[category]) {
-    const filePath = path.join(sentencesDir, `${category}.json`);
-    const raw = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-    sentencesCache[category] = raw.map(cleanSentence);
+  const cacheKey = `sentences:${category}`;
+  if (cache[cacheKey]) {
+    return cache[cacheKey];
   }
-  return sentencesCache[category];
+  const raw = await fetchJson(`/sentences/${category}.json`);
+  const cleaned = raw.map(cleanSentence);
+  cache[cacheKey] = cleaned;
+  return cleaned;
 }
 
 let allSentencesCache = null;
 
-export function getAllSentences() {
+export async function getAllSentences() {
   if (!allSentencesCache) {
-    const categories = getCategories();
-    allSentencesCache = categories.map(c => getSentences(c.key)).flat();
+    const categories = await getCategories();
+    const lists = await Promise.all(categories.map(c => getSentences(c.key)));
+    allSentencesCache = lists.flat();
   }
   return allSentencesCache;
 }
