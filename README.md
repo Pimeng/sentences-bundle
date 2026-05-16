@@ -1,18 +1,109 @@
-# 句子包
+# 腾讯云 EdgeOne Pages Functions 部署说明
 
-一言开源社区官方提供的语句库，系 `hitokoto.cn` 数据打包集合。语句接口默认使用此库。
+本项目基于 [hitokoto-osc/sentences-bundle](https://github.com/hitokoto-osc/sentences-bundle) 构建，已适配为 [腾讯云 EdgeOne Pages Functions](https://cloud.tencent.com/document/product/1552/127416) 项目，提供随机一言、分类列表和批量获取等 API 接口。
 
-## 使用方法
+## 项目结构
 
-参考： <https://sentences-bundle.hitokoto.cn>
+```
+edge-functions/
+├── api/
+│   ├── random.js          # GET /api/random       随机获取一言
+│   ├── sentences.js       # GET /api/sentences    按分类和数量获取一言
+│   └── categories.js      # GET /api/categories   获取一言分类列表
+├── lib/
+│   ├── data.js            # 数据加载模块
+│   ├── utils.js           # 工具函数
+│   └── data/              # 一言数据（由 JSON 转换而来）
+```
 
-## 使用须知
+## API 接口
 
-1. 本库遵循 AGPL 开源授权，您在使用本库时需要遵循 AGPL 授权的相关规定。这通常意味着：您在使用、分发、修改、扩充等涉及本库的操作时您需要开源您的修改作品。
-*  除我们提供的超链接调用方式不受 AGPL 的开源，传染影响，其余使用方式都需要遵循 AGPL 授权。
-2. 本库著作权并非完全由一言网持有。
-* 如您是句子的原作者，且不希望您的句子参与公共分享，请您联系我们（`i@loli.online`），我们将移除相关侵权句子。
-* 如您是原创句子的作者，这意味着一言是在经过您的确认后获得了拷贝、分发、出版、商业使用等长期授予的权限。当然，如果您想要移除您提交过的句子，我们依旧尊重您的著作权——移除相关句子。
-3. 本库由系统自动维护，这意味我们不受理任何 issues, pull request。如果您有相关问题，请通过电邮或者工单系统向我们反馈。
+### 1. 随机获取一言
 
-其他条款待补充。
+```
+GET /api/random
+GET /api/random?category=a
+```
+
+- `category`（可选）：分类 key，如 `a`（动画）、`b`（漫画）等。不填则从所有分类中随机。
+
+**响应示例：**
+```json
+{
+  "id": 1,
+  "uuid": "9818ecda-9cbf-4f2a-9af8-8136ef39cfcd",
+  "hitokoto": "与众不同的生活方式很累人呢，因为找不到借口。",
+  "type": "a",
+  "from": "幸运星",
+  "from_who": null,
+  "length": 22
+}
+```
+
+### 2. 获取一言分类列表
+
+```
+GET /api/categories
+```
+
+**响应示例：**
+```json
+{
+  "categories": [
+    { "id": 1, "name": "动画", "desc": "Anime - 动画", "key": "a", "count": 1446 },
+    ...
+  ]
+}
+```
+
+### 3. 按分类和数量获取一言
+
+```
+GET /api/sentences?category=a&num=10
+```
+
+- `category`（可选）：分类 key。不填则从所有分类中抽取。
+- `num`（可选）：获取数量，默认 `10`，最大 `100`。
+
+**响应示例：**
+```json
+{
+  "count": 10,
+  "sentences": [
+    { "id": 1, "uuid": "...", "hitokoto": "...", "type": "a", "from": "...", "from_who": null, "length": 22 },
+    ...
+  ]
+}
+```
+
+## 部署步骤
+
+1. 登录 [腾讯云 EdgeOne Pages](https://console.cloud.tencent.com/edgeone/pages) 控制台。
+2. 创建新项目，导入本 Git 仓库。
+3. 构建配置保持默认即可（EdgeOne Pages Functions 会自动识别 `edge-functions` 目录）。
+4. 部署完成后，即可通过分配的域名访问上述 API。
+
+## 本地数据更新
+
+如果更新了 `sentences/` 或 `categories.json` 中的原始数据，请运行以下命令重新生成 Edge Functions 可用的 JS 模块：
+
+```bash
+node build-edge-functions.js
+```
+
+## 分类 Key 对照表
+
+| Key | 名称 |
+|-----|------|
+| a | 动画 |
+| b | 漫画 |
+| c | 游戏 |
+| d | 文学 |
+| e | 原创 |
+| f | 网络 |
+| g | 其他 |
+| h | 影视 |
+| i | 诗词 |
+| j | 网易云 |
+| k | 哲学 |
+| l | 抖机灵 |

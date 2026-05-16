@@ -1,75 +1,527 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>句子包 - 一言网</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://fonts.googleapis.com/css?family=Rubik:300,500,700" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>一言句子包</title>
   <style>
+    :root {
+      --bg: #f5f7fa;
+      --card-bg: #fff;
+      --primary: #4f46e5;
+      --primary-light: #e0e7ff;
+      --text: #1f2937;
+      --text-secondary: #6b7280;
+      --border: #e5e7eb;
+      --radius: 12px;
+      --shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+      --shadow-hover: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'Rubik', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      font-size: calc(10px + 0.33vw);
-      -webkit-font-smoothing: antialiased;
-      padding: 5vh 10vw;
-      color: #121314;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
     }
-    h1 {
-      font-size: 4.5em;
-      font-weight: 500;
-      margin-bottom: 0;
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 20px;
     }
-    p {
-      font-size: 1.6em;
-      font-weight: 300;
-      line-height: 1.4;
+    header {
+      text-align: center;
+      margin-bottom: 36px;
     }
-    a {
-      text-decoration: none;
-      color: #121314;
+    header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      background: linear-gradient(90deg, #4f46e5, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    header p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    /* 教程区 */
+    .section-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin: 32px 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .tutorial {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .tutorial-item {
+      border-bottom: 1px solid var(--border);
+    }
+    .tutorial-item:last-child { border-bottom: none; }
+    .tutorial summary {
+      cursor: pointer;
+      padding: 16px 20px;
+      font-weight: 600;
+      color: var(--text);
+      user-select: none;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .tutorial summary::-webkit-details-marker { display: none; }
+    .tutorial summary::before {
+      content: '▸';
+      color: var(--primary);
+      font-size: 0.9rem;
+      transition: transform .2s;
+      display: inline-block;
+    }
+    .tutorial details[open] > summary::before { transform: rotate(90deg); }
+    .tutorial details[open] > summary { background: #fafafa; }
+    .tutorial-body {
+      padding: 0 20px 18px;
+    }
+    .tutorial-body p, .tutorial-body ul {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+    }
+    .tutorial-body ul { margin-left: 18px; }
+    .tutorial-body li { margin-bottom: 6px; }
+    .tutorial pre {
+      background: #1f2937;
+      color: #e5e7eb;
+      padding: 14px 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+      line-height: 1.55;
+      margin: 10px 0;
+    }
+    .tutorial code {
+      font-family: "Fira Code", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+    .tutorial .inline-code {
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 0.85em;
+    }
+
+    /* 分类预览 */
+    .toolbar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 14px;
+    }
+    .btn {
+      padding: 7px 16px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+      background: var(--primary);
+      color: #fff;
+      transition: background .2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn:hover { background: #4338ca; }
+    .btn-ghost {
+      background: transparent;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
+    .btn-ghost:hover { background: var(--primary-light); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      transition: transform .2s, box-shadow .2s;
       position: relative;
     }
-    a:after {
-      content: "";
-      position: absolute;
-      z-index: -1;
-      top: 60%;
-      left: -0.1em;
-      right: -0.1em;
-      bottom: 0;
-      transition: top 200ms cubic-bezier(0, .8, .13, 1);
-      background-color: rgba(79,192,141,0.5);
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
     }
-    a:hover:after {
-      top: 0%;
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
+    .card-desc {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+    .card-tag {
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    .card-body {
+      flex: 1;
+      font-size: 0.95rem;
+      line-height: 1.7;
+      margin-bottom: 14px;
+      word-break: break-word;
+    }
+    .card-meta {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .card-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .card-actions button {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .card-actions button:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    /* 加载 */
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-secondary);
+    }
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    footer {
+      text-align: center;
+      padding: 32px 0 16px;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
     }
   </style>
 </head>
 <body>
-  <h1>您好，</h1>
-  <p style="font-weight:500; font-size:2.2em">
-    歡迎使用一言語句包。
-  </p>
-  <p>
-    使用須知： <br />
-    1. 語句包采用 AGPL 授權，您在使用本庫時需要遵守 AGPL 的相關規定。 <br />
-       這通常意味著：在使用、分发、修改、扩充等涉及本库的操作时您需要开源您的修改作品。 <br />
-       我們容許一個例外：<b>通過下方提供的超鏈接方式使用我們的語句包， <br />
-       您將豁免 AGPL 的開源要求，以及授權傳播要求。</b> <br />
-    2. 本库著作权并非完全由一言网持有，如果存在版權爭議歡迎聯係我們。 <br />
-    3. 本库由系统自动维护，這意味著倉庫不受理任何反饋。歡迎通過電郵或反饋平臺向我們取得聯係。 <br />
-    如果補充説明，將補充在此。 <br />
-    項目開源地址： <a href="https://github.com/hitokoto-osc/sentences-bundle" target="_blank">GitHub</a>
-  </p>
-  <p>
-    您可以使用以下三種方法引入我們提供的語句包： <br />
-    1. JSDelivr:   <code>https://cdn.jsdelivr.net/gh/hitokoto-osc/sentences-bundle@latest/</code> <br />
-    2. Github Raw: <code>https://raw.githubusercontent.com/hitokoto-osc/sentences-bundle/master/</code> <br />
-    3. Pages:      <code>https://sentences-bundle.hitokoto.cn/</code> <br />
-  </p>
-  <p>
-    頁面設計版權歸 <a href="https://evanyou.me/">Evan You</a> 所有。<br />
-    項目解釋權歸 <a href="https://moeteam.tech">盟創團隊</a> 所有。
-  </p>
+  <div class="container">
+    <header>
+      <h1>Sentences Bundle</h1>
+      <p>一言句子包 · 动画 / 漫画 / 游戏 / 文学 / 诗词 / 网易云 / 哲学 / 抖机灵 等 12 类语录</p>
+    </header>
+
+    <h2 class="section-title">📖 使用教程</h2>
+    <section class="tutorial">
+      <div class="tutorial-item">
+        <details>
+          <summary>📂 项目结构说明</summary>
+          <div class="tutorial-body">
+            <p>本项目是一个静态 JSON 数据集，可直接部署到任意静态托管服务（GitHub Pages、Vercel、Cloudflare Pages 等）。</p>
+            <pre><code>sentences-bundle/
+├── categories.json          # 分类列表
+├── sentences/
+│   ├── a.json               # 动画
+│   ├── b.json               # 漫画
+│   ├── c.json               # 游戏
+│   ├── d.json               # 文学
+│   ├── e.json               # 原创
+│   ├── f.json               # 网络
+│   ├── g.json               # 其他
+│   ├── h.json               # 影视
+│   ├── i.json               # 诗词
+│   ├── j.json               # 网易云
+│   ├── k.json               # 哲学
+│   └── l.json               # 抖机灵
+└── index.html               # 本页面</code></pre>
+          </div>
+        </details>
+      </div>
+
+      <div class="tutorial-item">
+        <details>
+          <summary>📡 读取分类列表</summary>
+          <div class="tutorial-body">
+            <p>通过 <span class="inline-code">categories.json</span> 获取所有分类信息：</p>
+            <pre><code>GET /categories.json
+
+// 返回值示例
+[
+  {
+    "id": 1,
+    "name": "动画",
+    "desc": "Anime - 动画",
+    "key": "a",
+    "path": "./sentences/a.json"
+  }
+]</code></pre>
+            <ul>
+              <li><b>name</b>：分类中文名</li>
+              <li><b>key</b>：分类标识符（如 <span class="inline-code">a</span>），对应 <span class="inline-code">sentences/{key}.json</span></li>
+              <li><b>path</b>：该分类句子文件的相对路径</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+
+      <div class="tutorial-item">
+        <details>
+          <summary>📝 读取某分类的句子</summary>
+          <div class="tutorial-body">
+            <p>根据 <span class="inline-code">categories.json</span> 中的 <span class="inline-code">path</span> 字段，直接请求对应 JSON 文件：</p>
+            <pre><code>GET /sentences/a.json
+
+// 返回值示例（数组）
+[
+  {
+    "id": 1,
+    "uuid": "9818ecda-9cbf-4f2a-9af8-8136ef39cfcd",
+    "hitokoto": "句子内容",
+    "type": "a",
+    "from": "作品名",
+    "from_who": "作者",
+    "creator": "提交者",
+    "created_at": "1468605909",
+    "length": 22
+  }
+]</code></pre>
+            <ul>
+              <li><b>hitokoto</b>：句子正文</li>
+              <li><b>type</b>：所属分类的 key</li>
+              <li><b>from</b>：出处（作品名）</li>
+              <li><b>from_who</b>：作者（可能为 <span class="inline-code">null</span>）</li>
+              <li><b>length</b>：句子长度（字符数）</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+
+      <div class="tutorial-item">
+        <details>
+          <summary>🎲 随机抽取一句（JavaScript 示例）</summary>
+          <div class="tutorial-body">
+            <p>由于本项目是纯静态 JSON，没有后端随机接口。抽取随机句子的逻辑需要在客户端实现：</p>
+            <pre><code>async function randomHitokoto() {
+  // 1. 获取分类列表
+  const cats = await (await fetch('categories.json')).json();
+
+  // 2. 随机选一个分类
+  const cat = cats[Math.floor(Math.random() * cats.length)];
+
+  // 3. 加载该分类全部句子
+  const list = await (await fetch(cat.path)).json();
+
+  // 4. 随机抽一句
+  const sentence = list[Math.floor(Math.random() * list.length)];
+
+  console.log(sentence.hitokoto);
+  console.log('出自：' + sentence.from);
+}
+
+randomHitokoto();</code></pre>
+          </div>
+        </details>
+      </div>
+
+      <div class="tutorial-item">
+        <details>
+          <summary>⚡ 快速开始（前端页面调用）</summary>
+          <div class="tutorial-body">
+            <p>在你的网页中直接引用本仓库的数据：</p>
+            <pre><code>&lt;!-- 获取动画分类随机一句 --&gt;
+&lt;script&gt;
+  fetch('https://你的域名/sentences/a.json')
+    .then(r => r.json())
+    .then(data => {
+      const s = data[Math.floor(Math.random() * data.length)];
+      document.body.innerText = s.hitokoto;
+    });
+&lt;/script&gt;</code></pre>
+            <p>如果你部署在 <span class="inline-code">GitHub Pages</span>，地址类似：</p>
+            <pre><code>https://用户名.github.io/sentences-bundle/sentences/a.json</code></pre>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <h2 class="section-title">🎴 分类预览（每类随机一句）</h2>
+    <div class="toolbar">
+      <button class="btn btn-ghost" id="btn-refresh">🔄 全部刷新</button>
+    </div>
+    <div id="preview">
+      <div class="loading"><div class="spinner"></div>正在加载...</div>
+    </div>
+
+    <footer>
+      Sentences Bundle
+    </footer>
+  </div>
+
+  <script>
+    (async () => {
+      const $ = sel => document.querySelector(sel);
+
+      let categories = [];
+      let sentencesMap = {};   // key -> sentences[]
+
+      async function loadCategories() {
+        const res = await fetch('categories.json');
+        if (!res.ok) throw new Error('无法加载分类数据');
+        categories = await res.json();
+      }
+
+      async function loadSentences(cat) {
+        if (sentencesMap[cat.key]) return sentencesMap[cat.key];
+        const res = await fetch(cat.path);
+        if (!res.ok) throw new Error('无法加载 ' + cat.path);
+        const data = await res.json();
+        sentencesMap[cat.key] = data;
+        return data;
+      }
+
+      function pickRandom(arr) {
+        return arr[Math.floor(Math.random() * arr.length)];
+      }
+
+      function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+      }
+
+      async function renderPreview() {
+        const container = $('#preview');
+        container.innerHTML = '<div class="loading"><div class="spinner"></div>正在加载...</div>';
+
+        // 并行加载所有分类
+        await Promise.all(categories.map(c => loadSentences(c)));
+
+        const grid = document.createElement('div');
+        grid.className = 'grid';
+
+        categories.forEach(cat => {
+          const list = sentencesMap[cat.key];
+          const s = pickRandom(list);
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `
+            <div class="card-header">
+              <div>
+                <div class="card-title">${escapeHtml(cat.name)}</div>
+                <div class="card-desc">${escapeHtml(cat.desc)}</div>
+              </div>
+              <span class="card-tag">${list.length} 句</span>
+            </div>
+            <div class="card-body" id="quote-${cat.key}">
+              「${escapeHtml(s.hitokoto)}」
+            </div>
+            <div class="card-meta">
+              <span>${s.from ? '《' + escapeHtml(s.from) + '》' : ''}${s.from_who ? ' ' + escapeHtml(s.from_who) : ''}</span>
+              <div class="card-actions">
+                <button onclick="refreshCat('${cat.key}')">🔄 换一句</button>
+                <button onclick="copyQuote('${cat.key}')">📋 复制</button>
+              </div>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
+
+        container.innerHTML = '';
+        container.appendChild(grid);
+      }
+
+      // 全局暴露供 HTML onclick 调用
+      window.refreshCat = (key) => {
+        const list = sentencesMap[key];
+        if (!list) return;
+        const s = pickRandom(list);
+        const el = document.getElementById('quote-' + key);
+        if (el) {
+          el.style.opacity = '0';
+          setTimeout(() => {
+            el.innerHTML = '「' + escapeHtml(s.hitokoto) + '」';
+            el.style.opacity = '1';
+          }, 150);
+        }
+        // 同时更新出处
+        const card = el.closest('.card');
+        const metaSpan = card.querySelector('.card-meta > span');
+        metaSpan.textContent = (s.from ? '《' + s.from + '》' : '') + (s.from_who ? ' ' + s.from_who : '');
+      };
+
+      window.copyQuote = async (key) => {
+        const el = document.getElementById('quote-' + key);
+        if (!el) return;
+        const text = el.textContent.replace(/^「|」$/g, '').trim();
+        try {
+          await navigator.clipboard.writeText(text);
+          const btn = el.closest('.card').querySelector('.card-actions button:last-child');
+          const orig = btn.textContent;
+          btn.textContent = '✓ 已复制';
+          setTimeout(() => btn.textContent = orig, 1200);
+        } catch (err) {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+        }
+      };
+
+      $('#btn-refresh').addEventListener('click', () => {
+        categories.forEach(c => window.refreshCat(c.key));
+      });
+
+      // 初始化
+      try {
+        await loadCategories();
+        await renderPreview();
+      } catch (err) {
+        $('#preview').innerHTML = '<div class="loading">加载失败：' + escapeHtml(err.message) + '</div>';
+        console.error(err);
+      }
+    })();
+  </script>
 </body>
 </html>
