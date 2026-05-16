@@ -877,7 +877,7 @@ code {
   color: #0b0d10;
   border: none;
   cursor: pointer;
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 4px 16px rgba(52, 211, 153, 0.35);
@@ -892,9 +892,7 @@ code {
 
 .debug-toggle svg { width: 18px; height: 18px; }
 
-.debug-toggle.visible {
-  display: flex;
-}
+
 
 /* ==========================================================
    Scrollbar
@@ -974,10 +972,80 @@ code {
 }
 
 /* ==========================================================
+   Mobile Header
+   ========================================================== */
+.mobile-header {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  background: var(--sidebar-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
+.menu-toggle {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+}
+
+.menu-toggle:hover {
+  background: var(--card-hover);
+  color: var(--text);
+}
+
+.menu-toggle svg {
+  width: 18px;
+  height: 18px;
+}
+
+.mobile-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* ==========================================================
+   Sidebar Overlay
+   ========================================================== */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 35;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ==========================================================
    Responsive
    ========================================================== */
 @media (max-width: 1200px) {
   .debug-panel { width: 380px; }
+}
+
+/* Hide header close button — toggle button in the same spot handles expand/collapse */
+.debug-close {
+  display: none;
 }
 
 @media (max-width: 1020px) {
@@ -989,9 +1057,6 @@ code {
     z-index: 50;
     box-shadow: -4px 0 24px rgba(0,0,0,0.4);
   }
-  .debug-toggle.visible {
-    display: flex;
-  }
 }
 
 @media (max-width: 768px) {
@@ -1001,17 +1066,24 @@ code {
     height: 100vh;
     z-index: 40;
     transform: translateX(-100%);
+    width: 260px;
   }
   .sidebar.open {
     transform: translateX(0);
   }
+  .mobile-header {
+    display: flex;
+  }
   .main-inner {
-    padding: 24px;
+    padding: 20px;
   }
   .api-title {
     font-size: 20px;
   }
   .debug-panel {
     width: 100%;
+  }
+  .api-breadcrumb {
+    margin-top: 4px;
   }
 }

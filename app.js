@@ -199,6 +199,10 @@ function selectApi(id) {
   lastStatus = null;
   lastDuration = null;
   lastRequestUrl = null;
+  // Close sidebar on mobile after selection
+  if (window.innerWidth <= 768) {
+    toggleSidebar(false);
+  }
 }
 
 /* ----------------------------------------------------------
@@ -478,20 +482,50 @@ async function sendDebug() {
 }
 
 /* ----------------------------------------------------------
+   Sidebar Toggle
+   ---------------------------------------------------------- */
+function toggleSidebar(show) {
+  const sidebar = document.querySelector('.sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  if (show) {
+    sidebar.classList.add('open');
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  } else {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+}
+
+/* ----------------------------------------------------------
    Panel Toggle
    ---------------------------------------------------------- */
+function updateDebugToggle() {
+  const toggle = document.getElementById('debug-toggle');
+  if (debugCollapsed) {
+    toggle.title = '展开面板';
+    toggle.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/>
+    </svg>`;
+  } else {
+    toggle.title = '收起面板';
+    toggle.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M13 17l5-5-5-5M6 17l5-5-5-5"/>
+    </svg>`;
+  }
+}
+
 function toggleDebugPanel(show) {
   const panel = document.getElementById('debug-panel');
-  const toggle = document.getElementById('debug-toggle');
   debugCollapsed = !show;
 
   if (show) {
     panel.classList.remove('collapsed');
-    toggle.classList.remove('visible');
   } else {
     panel.classList.add('collapsed');
-    toggle.classList.add('visible');
   }
+  updateDebugToggle();
 }
 
 /* ----------------------------------------------------------
@@ -515,8 +549,10 @@ document.getElementById('search-input').addEventListener('input', function() {
 /* ----------------------------------------------------------
    Event Listeners
    ---------------------------------------------------------- */
+document.getElementById('menu-toggle').addEventListener('click', () => toggleSidebar(true));
+document.getElementById('sidebar-overlay').addEventListener('click', () => toggleSidebar(false));
 document.getElementById('debug-close').addEventListener('click', () => toggleDebugPanel(false));
-document.getElementById('debug-toggle').addEventListener('click', () => toggleDebugPanel(true));
+document.getElementById('debug-toggle').addEventListener('click', () => toggleDebugPanel(debugCollapsed));
 
 // Keyboard shortcut: Ctrl/Cmd + Enter to send
 document.addEventListener('keydown', (e) => {
@@ -534,3 +570,4 @@ document.addEventListener('keydown', (e) => {
 renderSidebar();
 renderMain();
 renderDebug();
+updateDebugToggle();
