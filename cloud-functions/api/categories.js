@@ -1,12 +1,13 @@
 import { getCategories, getSentences } from '../lib/data.js';
 import { jsonResponse } from '../lib/utils.js';
 
-export async function onRequestGet() {
+export async function onRequestGet(context) {
   try {
-    const categories = await getCategories();
+    const requestUrl = context.request.url;
+    const categories = await getCategories(requestUrl);
     const results = await Promise.all(
       categories.map(async (c) => {
-        const sentences = await getSentences(c.key);
+        const sentences = await getSentences(c.key, requestUrl);
         return {
           id: c.id,
           name: c.name,

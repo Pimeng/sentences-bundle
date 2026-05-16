@@ -3,19 +3,20 @@ import { jsonResponse, errorResponse, getRandomItems } from '../lib/utils.js';
 
 export async function onRequestGet(context) {
   try {
-    const url = new URL(context.request.url);
+    const requestUrl = context.request.url;
+    const url = new URL(requestUrl);
     const category = url.searchParams.get('category');
     const numParam = url.searchParams.get('num');
     const num = Math.min(Math.max(parseInt(numParam, 10) || 10, 1), 100);
     let sentences;
 
     if (category) {
-      sentences = await getSentences(category);
+      sentences = await getSentences(category, requestUrl);
       if (!sentences) {
         return errorResponse('Invalid category', 400);
       }
     } else {
-      sentences = await getAllSentences();
+      sentences = await getAllSentences(requestUrl);
     }
 
     if (!sentences || sentences.length === 0) {

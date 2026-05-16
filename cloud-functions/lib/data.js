@@ -25,33 +25,38 @@ async function fetchJson(url) {
   return data;
 }
 
-export async function getCategories() {
-  return fetchJson('/categories.json');
+export async function getCategories(requestUrl) {
+  const url = new URL('/categories.json', requestUrl).href;
+  return fetchJson(url);
 }
 
-export async function getSentences(category) {
-  const categories = await getCategories();
+export async function getSentences(category, requestUrl) {
+  const categories = await getCategories(requestUrl);
   const keys = categories.map(c => c.key);
   if (!keys.includes(category)) {
     return null;
   }
-  const cacheKey = `sentences:${category}`;
+  const cacheKey = `sentences:${category}:${requestUrl}`;
   if (cache[cacheKey]) {
     return cache[cacheKey];
   }
-  const raw = await fetchJson(`/sentences/${category}.json`);
+  const url = new URL(`/sentences/${category}.json`, requestUrl).href;
+  const raw = await fetchJson(url);
   const cleaned = raw.map(cleanSentence);
   cache[cacheKey] = cleaned;
   return cleaned;
 }
 
 let allSentencesCache = null;
+let allSentencesCacheUrl = null;
 
-export async function getAllSentences() {
-  if (!allSentencesCache) {
-    const categories = await getCategories();
-    const lists = await Promise.all(categories.map(c => getSentences(c.key)));
-    allSentencesCache = lists.flat();
+export async function getAllSentences(requestUrl) {
+  if (allSentencesCache && allSentencesCacheUrl === requestUrl) {
+    return allSentencesCache;
   }
+  const categories = await getCategories(requestUrl);
+  const lists = await Promise.all(categories.map(c => getSentences(c.key, requestUrl)));
+  allSentencesCache = lists.flat();
+  allSentencesCacheUrl = requestUrl;
   return allSentencesCache;
 }
