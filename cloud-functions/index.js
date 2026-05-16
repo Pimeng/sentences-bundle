@@ -780,19 +780,29 @@ export default function onRequest(context) {
       if (api.params.length === 0) {
         inputsHtml = '<div style="color:var(--text-muted);font-size:12px;padding:4px 0;">该接口无需参数</div>';
       } else {
-        inputsHtml = \`
+        inputsHtml = `
           <table class="debug-input-table">
             <tr><th>参数</th><th>值</th></tr>
-            \${api.params.map(p => \`
-              <tr>
-                <td><span class="param-name">\${escapeHtml(p.name)}</span></td>
-                <td><input type="text" id="debug-\${p.name}" placeholder="\${escapeHtml(p.desc)}"></td>
-              </tr>
-            \`).join('')}
+            ${api.params.map(p => {
+              let inputEl;
+              if (p.name === 'category') {
+                const options = Object.entries(CATEGORY_MAP).map(([k, v]) =>
+                  `<option value="${escapeHtml(k)}">${escapeHtml(k)} - ${escapeHtml(v)}</option>`
+                ).join('');
+                inputEl = `<select id="debug-${p.name}" style="width:100%;background:var(--code-bg);border:1px solid var(--border);border-radius:4px;padding:5px 8px;color:var(--text);font-size:12px;outline:none;font-family:&quot;Fira Code&quot;,monospace;"><option value="">全部</option>${options}</select>`;
+              } else {
+                inputEl = `<input type="text" id="debug-${p.name}" placeholder="${escapeHtml(p.desc)}">`;
+              }
+              return `
+                <tr>
+                  <td><span class="param-name">${escapeHtml(p.name)}</span></td>
+                  <td>${inputEl}</td>
+                </tr>
+              `;
+            }).join('')}
           </table>
-        \`;
+        `;
       }
-
       const resultHtml = lastResponse !== null
         ? \`
           <div class="debug-result-header">
