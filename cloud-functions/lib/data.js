@@ -27,10 +27,34 @@ export function getSentences(category) {
 }
 
 let allSentencesCache = null;
+let idIndexCache = null;
+let uuidIndexCache = null;
 
 export function getAllSentences() {
   if (!allSentencesCache) {
     allSentencesCache = categoryKeys.map(key => sentencesMap[key]).flat();
   }
   return allSentencesCache;
+}
+
+function buildIndexes() {
+  if (!idIndexCache) {
+    idIndexCache = new Map();
+    uuidIndexCache = new Map();
+    const all = getAllSentences();
+    for (const s of all) {
+      idIndexCache.set(s.id, s);
+      uuidIndexCache.set(s.uuid, s);
+    }
+  }
+}
+
+export function getSentenceById(id) {
+  buildIndexes();
+  return idIndexCache.get(id) || null;
+}
+
+export function getSentenceByUuid(uuid) {
+  buildIndexes();
+  return uuidIndexCache.get(uuid) || null;
 }

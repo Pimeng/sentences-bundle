@@ -4,8 +4,8 @@ import { jsonResponse, errorResponse, getRandomItems } from '../lib/utils.js';
 export function onRequestGet(context) {
   try {
     const url = new URL(context.request.url);
-    const category = url.searchParams.get('category');
-    const numParam = url.searchParams.get('num');
+    const category = url.searchParams.get('c');
+    const numParam = url.searchParams.get('n');
     const num = Math.min(Math.max(parseInt(numParam, 10) || 10, 1), 100);
     let sentences;
 
