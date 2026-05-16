@@ -1,22 +1,21 @@
 import { getSentences, getAllSentences } from '../lib/data.js';
 import { jsonResponse, errorResponse, getRandomItems } from '../lib/utils.js';
 
-export async function onRequestGet(context) {
+export function onRequestGet(context) {
   try {
-    const requestUrl = context.request.url;
-    const url = new URL(requestUrl);
+    const url = new URL(context.request.url);
     const category = url.searchParams.get('category');
     const numParam = url.searchParams.get('num');
     const num = Math.min(Math.max(parseInt(numParam, 10) || 10, 1), 100);
     let sentences;
 
     if (category) {
-      sentences = await getSentences(category, requestUrl);
+      sentences = getSentences(category);
       if (!sentences) {
         return errorResponse('Invalid category', 400);
       }
     } else {
-      sentences = await getAllSentences(requestUrl);
+      sentences = getAllSentences();
     }
 
     if (!sentences || sentences.length === 0) {

@@ -1,20 +1,19 @@
 import { getSentences, getAllSentences } from '../lib/data.js';
 import { jsonResponse, errorResponse } from '../lib/utils.js';
 
-export async function onRequestGet(context) {
+export function onRequestGet(context) {
   try {
-    const requestUrl = context.request.url;
-    const url = new URL(requestUrl);
+    const url = new URL(context.request.url);
     const category = url.searchParams.get('category');
     let sentences;
 
     if (category) {
-      sentences = await getSentences(category, requestUrl);
+      sentences = getSentences(category);
       if (!sentences) {
         return errorResponse('Invalid category', 400);
       }
     } else {
-      sentences = await getAllSentences(requestUrl);
+      sentences = getAllSentences();
     }
 
     if (!sentences || sentences.length === 0) {
