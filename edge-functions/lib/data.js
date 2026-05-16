@@ -1,30 +1,36 @@
 import categories from './data/categories.js';
+import a from './data/sentences/a.js';
+import b from './data/sentences/b.js';
+import c from './data/sentences/c.js';
+import d from './data/sentences/d.js';
+import e from './data/sentences/e.js';
+import f from './data/sentences/f.js';
+import g from './data/sentences/g.js';
+import h from './data/sentences/h.js';
+import i from './data/sentences/i.js';
+import j from './data/sentences/j.js';
+import k from './data/sentences/k.js';
+import l from './data/sentences/l.js';
 
-const sentencesCache = {};
+const sentencesMap = { a, b, c, d, e, f, g, h, i, j, k, l };
 const categoryKeys = categories.map(c => c.key);
 
 export function getCategories() {
   return categories;
 }
 
-export async function getSentences(category) {
+export function getSentences(category) {
   if (!categoryKeys.includes(category)) {
     return null;
   }
-  if (!sentencesCache[category]) {
-    const mod = await import(`./data/sentences/${category}.js`);
-    sentencesCache[category] = mod.default;
-  }
-  return sentencesCache[category];
+  return sentencesMap[category] || null;
 }
 
 let allSentencesCache = null;
 
-export async function getAllSentences() {
+export function getAllSentences() {
   if (!allSentencesCache) {
-    const promises = categoryKeys.map(key => getSentences(key));
-    const results = await Promise.all(promises);
-    allSentencesCache = results.flat();
+    allSentencesCache = categoryKeys.map(key => sentencesMap[key]).flat();
   }
   return allSentencesCache;
 }

@@ -1,7 +1,7 @@
 import { getSentences, getAllSentences } from '../lib/data.js';
 import { jsonResponse, errorResponse, getRandomItems } from '../lib/utils.js';
 
-export async function onRequestGet(context) {
+export function onRequestGet(context) {
   const url = new URL(context.request.url);
   const category = url.searchParams.get('category');
   const numParam = url.searchParams.get('num');
@@ -10,12 +10,12 @@ export async function onRequestGet(context) {
   try {
     let sentences;
     if (category) {
-      sentences = await getSentences(category);
+      sentences = getSentences(category);
       if (!sentences) {
         return errorResponse('Invalid category', 400);
       }
     } else {
-      sentences = await getAllSentences();
+      sentences = getAllSentences();
     }
 
     if (!sentences || sentences.length === 0) {
@@ -36,8 +36,8 @@ export async function onRequestGet(context) {
         length: item.length,
       })),
     });
-  } catch (e) {
-    return errorResponse(e.message, 500);
+  } catch (err) {
+    return errorResponse(err.message, 500);
   }
 }
 
