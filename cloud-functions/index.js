@@ -18,262 +18,330 @@ export default function onRequest(context) {
   <title>Sentences Bundle API 文档</title>
   <style>
     :root {
-      --bg: #1a1a1a;
-      --card-bg: #252525;
-      --card-bg-hover: #2e2e2e;
-      --primary: #10b981;
-      --primary-hover: #059669;
-      --primary-bg: rgba(16, 185, 129, 0.15);
-      --accent: #6366f1;
-      --accent-bg: rgba(99, 102, 241, 0.15);
+      --bg: #0f0f0f;
+      --sidebar-bg: #141414;
+      --panel-bg: #1a1a1a;
+      --card-bg: #1e1e1e;
+      --card-hover: #252525;
+      --border: #2a2a2a;
+      --border-light: #3a3a3a;
       --text: #e5e7eb;
       --text-secondary: #9ca3af;
       --text-muted: #6b7280;
-      --border: #374151;
-      --border-light: #4b5563;
-      --code-bg: #1f2937;
-      --radius: 10px;
+      --primary: #10b981;
+      --primary-dark: #059669;
+      --primary-bg: rgba(16,185,129,0.12);
+      --accent: #6366f1;
+      --accent-bg: rgba(99,102,241,0.12);
+      --danger: #ef4444;
+      --danger-bg: rgba(239,68,68,0.12);
+      --code-bg: #111111;
+      --radius: 8px;
       --radius-sm: 6px;
-      --shadow: 0 4px 6px -1px rgba(0,0,0,0.3), 0 2px 4px -2px rgba(0,0,0,0.3);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       background: var(--bg);
       color: var(--text);
+      font-size: 13px;
       line-height: 1.6;
-      font-size: 14px;
-    }
-    .container {
-      max-width: 860px;
-      margin: 0 auto;
-      padding: 40px 20px;
-    }
-    header {
-      margin-bottom: 40px;
-      padding-bottom: 24px;
-      border-bottom: 1px solid var(--border);
-    }
-    header h1 {
-      font-size: 1.6rem;
-      font-weight: 700;
-      margin-bottom: 6px;
-      color: #f3f4f6;
-    }
-    header p {
-      color: var(--text-secondary);
-      font-size: 0.9rem;
+      overflow: hidden;
     }
 
-    /* Section Title */
-    .section-title {
-      font-size: 1.15rem;
+    /* Layout */
+    .app {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 260px;
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+    .sidebar-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .sidebar-header .logo {
+      width: 28px; height: 28px;
+      background: var(--primary-bg);
+      color: var(--primary);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 12px;
+    }
+    .sidebar-header .title {
+      font-weight: 600; font-size: 14px;
+    }
+    .sidebar-search {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-search input {
+      width: 100%;
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 6px 10px;
+      color: var(--text);
+      font-size: 12px;
+      outline: none;
+    }
+    .sidebar-search input::placeholder { color: var(--text-muted); }
+    .sidebar-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 0;
+    }
+    .sidebar-group {
+      margin-bottom: 4px;
+    }
+    .sidebar-group-title {
+      padding: 8px 16px;
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
       font-weight: 600;
-      margin: 36px 0 18px;
-      color: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+    .sidebar-group-title::after {
+      content: '▾';
+      font-size: 10px;
+    }
+    .sidebar-group.collapsed .sidebar-group-title::after {
+      content: '▸';
+    }
+    .sidebar-group.collapsed .sidebar-items {
+      display: none;
+    }
+    .sidebar-item {
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      gap: 8px;
+      border-left: 2px solid transparent;
+      transition: background .15s;
+    }
+    .sidebar-item:hover {
+      background: var(--card-hover);
+    }
+    .sidebar-item.active {
+      background: var(--card-bg);
+      border-left-color: var(--primary);
+    }
+    .sidebar-item-left {
       display: flex;
       align-items: center;
       gap: 8px;
+      overflow: hidden;
     }
-    .section-title .num {
-      color: var(--primary);
+    .method-tag {
+      font-size: 9px;
       font-weight: 700;
+      padding: 2px 5px;
+      border-radius: 3px;
+      letter-spacing: 0.3px;
+      flex-shrink: 0;
+    }
+    .method-tag.get { background: var(--primary-bg); color: var(--primary); }
+    .sidebar-item-name {
+      font-size: 12px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .sidebar-item.active .sidebar-item-name {
+      color: var(--text);
     }
 
-    /* API Endpoint Card */
-    .api-card {
+    /* Main Content */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      background: var(--bg);
+    }
+    .main-inner {
+      max-width: 760px;
+      padding: 32px 36px;
+    }
+    .api-header-area {
+      margin-bottom: 28px;
+    }
+    .api-breadcrumb {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+    .api-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+    .api-path-bar {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 8px 14px;
+    }
+    .api-path-bar .method-tag.get {
+      font-size: 11px;
+      padding: 3px 7px;
+    }
+    .api-path-bar code {
+      font-family: "Fira Code", "SFMono-Regular", Consolas, monospace;
+      font-size: 13px;
+      color: #a5b4fc;
+    }
+    .api-desc {
+      color: var(--text-secondary);
+      font-size: 13px;
+      margin-top: 14px;
+      line-height: 1.7;
+    }
+
+    .section {
+      margin-top: 28px;
+    }
+    .section-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 14px;
+      color: #f3f4f6;
+    }
+
+    /* Param List */
+    .param-list {
       background: var(--card-bg);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       overflow: hidden;
-      margin-bottom: 16px;
-      box-shadow: var(--shadow);
     }
-    .api-header {
+    .param-header {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 14px 18px;
-      cursor: pointer;
-      user-select: none;
-      transition: background 0.2s;
-    }
-    .api-header:hover {
-      background: var(--card-bg-hover);
-    }
-    .api-header-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .method-badge {
-      background: var(--primary);
-      color: #fff;
-      font-size: 0.7rem;
-      font-weight: 700;
-      padding: 3px 8px;
-      border-radius: var(--radius-sm);
-      letter-spacing: 0.5px;
-    }
-    .api-name {
-      font-weight: 600;
-      font-size: 0.95rem;
-      color: var(--text);
-    }
-    .api-path {
-      color: var(--text-muted);
-      font-size: 0.85rem;
-      font-family: "Fira Code", "SFMono-Regular", Consolas, monospace;
-    }
-    .api-toggle {
-      color: var(--text-muted);
-      font-size: 0.8rem;
-      transition: transform 0.2s;
-    }
-    .api-card.open .api-toggle {
-      transform: rotate(180deg);
-    }
-
-    /* API Body */
-    .api-body {
-      display: none;
-      padding: 0 18px 18px;
-      border-top: 1px solid var(--border);
-    }
-    .api-card.open .api-body {
-      display: block;
-    }
-    .api-desc {
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-      padding: 14px 0 6px;
-    }
-
-    /* Tabs */
-    .tabs {
-      display: flex;
       gap: 8px;
-      margin: 14px 0;
-    }
-    .tab {
-      padding: 5px 12px;
-      border-radius: var(--radius-sm);
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      background: transparent;
-      border: 1px solid var(--border);
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .tab.active {
-      background: var(--accent-bg);
-      color: var(--accent);
-      border-color: var(--accent);
-    }
-
-    /* Subsection */
-    .subsection {
-      margin-top: 18px;
-    }
-    .subsection-title {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 10px;
-      padding-left: 10px;
-      border-left: 3px solid var(--accent);
-    }
-
-    /* URL Box */
-    .url-box {
-      background: var(--code-bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
       padding: 10px 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      font-family: "Fira Code", "SFMono-Regular", Consolas, monospace;
-      font-size: 0.85rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--text-secondary);
     }
-    .url-text {
-      color: #a5b4fc;
-      overflow-x: auto;
+    .param-header .badge {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+    .param-row {
+      display: flex;
+      align-items: flex-start;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      gap: 14px;
+    }
+    .param-row:last-child { border-bottom: none; }
+    .param-name {
+      font-family: "Fira Code", "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+      color: #93c5fd;
+      background: var(--panel-bg);
+      padding: 2px 8px;
+      border-radius: 4px;
       white-space: nowrap;
     }
-    .url-actions {
-      display: flex;
-      gap: 8px;
-      flex-shrink: 0;
+    .param-meta {
+      flex: 1;
+      min-width: 0;
     }
-    .btn-sm {
-      padding: 4px 10px;
-      border-radius: var(--radius-sm);
-      border: none;
-      font-size: 0.8rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-family: inherit;
+    .param-type {
+      font-size: 12px;
+      color: var(--primary);
+      margin-bottom: 2px;
     }
-    .btn-primary {
-      background: var(--primary);
-      color: #fff;
-    }
-    .btn-primary:hover {
-      background: var(--primary-hover);
-    }
-    .btn-ghost {
-      background: transparent;
+    .param-desc {
+      font-size: 12px;
       color: var(--text-secondary);
-      border: 1px solid var(--border-light);
     }
-    .btn-ghost:hover {
-      background: var(--card-bg-hover);
-      color: var(--text);
+    .param-required {
+      font-size: 11px;
+      color: var(--danger);
+      background: var(--danger-bg);
+      padding: 1px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .param-optional {
+      font-size: 11px;
+      color: var(--text-muted);
+      background: var(--panel-bg);
+      padding: 1px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
     }
 
-    /* Table */
-    .param-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.85rem;
-    }
-    .param-table th,
-    .param-table td {
-      text-align: left;
-      padding: 8px 12px;
+    /* Response */
+    .response-card {
+      background: var(--card-bg);
       border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
     }
-    .param-table th {
-      background: var(--code-bg);
-      color: var(--text-secondary);
+    .response-header {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--primary);
+    }
+    .status-text {
+      font-size: 13px;
       font-weight: 500;
     }
-    .param-table td {
-      color: var(--text);
+    .response-body {
+      padding: 14px;
     }
-    .param-table .col-name {
-      color: #a5b4fc;
-      font-family: "Fira Code", "SFMono-Regular", Consolas, monospace;
-    }
-    .param-table .col-type {
-      color: var(--primary);
-    }
-    .param-table .col-optional {
+    .response-sub {
+      font-size: 12px;
       color: var(--text-muted);
-      text-align: center;
+      margin-bottom: 10px;
     }
 
     /* Code Block */
-    pre {
+    pre.code-block {
       background: var(--code-bg);
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
-      padding: 14px 16px;
+      padding: 14px;
       overflow-x: auto;
-      font-size: 0.82rem;
-      line-height: 1.55;
+      font-size: 12px;
+      line-height: 1.6;
       margin: 0;
     }
     code {
@@ -283,285 +351,516 @@ export default function onRequest(context) {
     .json-str { color: #86efac; }
     .json-num { color: #fca5a5; }
     .json-bool { color: #fcd34d; }
-    .json-null { color: #fcd34d; }
 
-    /* Endpoint List */
-    .endpoint-list {
-      margin-top: 8px;
-      padding-left: 18px;
-      color: var(--text-secondary);
-      font-size: 0.9rem;
+    /* Example Tabs */
+    .example-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 10px;
     }
-    .endpoint-list li {
-      margin-bottom: 8px;
-      line-height: 1.6;
-    }
-    .endpoint-list code {
-      background: var(--code-bg);
-      padding: 1px 5px;
-      border-radius: 4px;
-      color: #a5b4fc;
-      font-size: 0.85em;
-    }
-
-    /* Info Box */
-    .info-box {
-      background: rgba(99, 102, 241, 0.08);
-      border: 1px solid var(--border);
+    .example-tab {
+      padding: 4px 10px;
       border-radius: var(--radius-sm);
-      padding: 14px 16px;
-      margin-top: 14px;
+      font-size: 12px;
+      color: var(--text-muted);
+      cursor: pointer;
+      border: none;
+      background: transparent;
     }
-    .info-box-title {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 6px;
+    .example-tab.active {
+      background: var(--accent-bg);
+      color: var(--accent);
+    }
+
+    /* Debug Panel */
+    .debug-panel {
+      width: 420px;
+      background: var(--panel-bg);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+    .debug-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
-      gap: 6px;
+      justify-content: space-between;
     }
-    .info-box p {
-      color: var(--text-secondary);
-      font-size: 0.85rem;
-      line-height: 1.6;
+    .debug-header-title {
+      font-weight: 600;
+      font-size: 14px;
     }
-    .info-box code {
-      background: var(--code-bg);
-      padding: 1px 5px;
-      border-radius: 4px;
-      color: #a5b4fc;
-      font-size: 0.85em;
+    .debug-close {
+      background: none; border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 16px;
     }
-
-    /* Category tags */
-    .cat-tags {
+    .debug-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+    .debug-url-bar {
       display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 10px;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
     }
-    .cat-tag {
+    .debug-url-bar .method-tag.get {
+      font-size: 11px;
+      padding: 4px 8px;
+    }
+    .debug-url {
+      flex: 1;
       background: var(--code-bg);
       border: 1px solid var(--border);
-      color: var(--text-secondary);
-      padding: 2px 8px;
       border-radius: var(--radius-sm);
-      font-size: 0.8rem;
-      font-family: "Fira Code", "SFMono-Regular", Consolas, monospace;
+      padding: 7px 10px;
+      color: var(--text-secondary);
+      font-family: "Fira Code", monospace;
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .btn-send {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 7px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-send:hover { background: var(--primary-dark); }
+
+    .debug-section-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin: 14px 0 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
     }
 
-    footer {
-      text-align: center;
-      padding: 40px 0 16px;
-      font-size: 0.8rem;
+    .debug-input-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .debug-input-table th {
+      text-align: left;
+      padding: 6px 8px;
       color: var(--text-muted);
+      font-weight: 500;
+      border-bottom: 1px solid var(--border);
+    }
+    .debug-input-table td {
+      padding: 6px 8px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .debug-input-table input {
+      width: 100%;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 5px 8px;
+      color: var(--text);
+      font-size: 12px;
+      outline: none;
+      font-family: "Fira Code", monospace;
+    }
+    .debug-input-table input:focus {
+      border-color: var(--border-light);
+    }
+
+    .debug-result {
+      margin-top: 16px;
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+    }
+    .debug-result-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .debug-result-title {
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .debug-status {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .debug-status.ok {
+      background: var(--primary-bg);
+      color: var(--primary);
+    }
+    .debug-status.err {
+      background: var(--danger-bg);
+      color: var(--danger);
+    }
+    .debug-result-empty {
+      color: var(--text-muted);
+      font-size: 12px;
+      text-align: center;
+      padding: 30px 0;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #4a4a4a; }
+
+    /* Responsive */
+    @media (max-width: 1100px) {
+      .debug-panel { display: none; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Sentences Bundle API</h1>
-      <p>一言句子包 · Cloud Function API 文档</p>
-    </header>
-
-    <!-- API 1: Random -->
-    <div class="section-title"><span class="num"># 1.</span> 随机获取一言</div>
-    <div class="api-card" id="card-random">
-      <div class="api-header" onclick="toggleCard('card-random')">
-        <div class="api-header-left">
-          <span class="method-badge">GET</span>
-          <span class="api-name">随机句子</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:12px;">
-          <span class="api-path">/api/random</span>
-          <span class="api-toggle">▼</span>
-        </div>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">SB</div>
+        <div class="title">Sentences Bundle</div>
       </div>
-      <div class="api-body">
-        <div class="api-desc">从全部句子中随机抽取一条，或指定分类后从该分类中随机抽取。</div>
-        <div class="tabs">
-          <button class="tab active">默认</button>
-          <button class="tab">指定分类</button>
-        </div>
-
-        <div class="subsection">
-          <div class="subsection-title">请求地址</div>
-          <div class="url-box">
-            <span class="url-text" id="url-random">/api/random</span>
-            <div class="url-actions">
-              <button class="btn-sm btn-primary" onclick="tryApi('/api/random')">运行</button>
-              <button class="btn-sm btn-ghost" onclick="copyUrl('url-random')">复制</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="subsection">
-          <div class="subsection-title">请求参数 (Query)</div>
-          <table class="param-table">
-            <tr><th>参数名</th><th>类型</th><th>说明</th><th>必填</th></tr>
-            <tr><td class="col-name">category</td><td class="col-type">string</td><td>分类 key，如 <code>a</code>（动画）</td><td class="col-optional">可选</td></tr>
-          </table>
-        </div>
-
-        <div class="subsection">
-          <div class="subsection-title">响应示例 (JSON)</div>
-          <pre><code>{<br>  <span class="json-key">"id"</span>: <span class="json-num">1234</span>,<br>  <span class="json-key">"uuid"</span>: <span class="json-str">"abc-def-123"</span>,<br>  <span class="json-key">"hitokoto"</span>: <span class="json-str">「句子内容」</span>,<br>  <span class="json-key">"type"</span>: <span class="json-str">"a"</span>,<br>  <span class="json-key">"from"</span>: <span class="json-str">"作品名"</span>,<br>  <span class="json-key">"from_who"</span>: <span class="json-str">"作者"</span>,<br>  <span class="json-key">"creator"</span>: <span class="json-str">"提交者"</span>,<br>  <span class="json-key">"created_at"</span>: <span class="json-str">"2020-01-01"</span><br>}</code></pre>
-        </div>
-
-        <ul class="endpoint-list">
-          <li>端点: <code>GET /api/random</code></li>
-          <li>带分类: <code>GET /api/random?category=a</code></li>
-        </ul>
+      <div class="sidebar-search">
+        <input type="text" placeholder="搜索接口..." id="search-input">
       </div>
-    </div>
-
-    <!-- API 2: Sentences -->
-    <div class="section-title"><span class="num"># 2.</span> 批量获取句子</div>
-    <div class="api-card" id="card-sentences">
-      <div class="api-header" onclick="toggleCard('card-sentences')">
-        <div class="api-header-left">
-          <span class="method-badge">GET</span>
-          <span class="api-name">批量句子</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:12px;">
-          <span class="api-path">/api/sentences</span>
-          <span class="api-toggle">▼</span>
-        </div>
+      <div class="sidebar-scroll" id="sidebar-scroll">
+        <!-- Generated by JS -->
       </div>
-      <div class="api-body">
-        <div class="api-desc">按指定数量和分类随机抽取多条句子。不填分类则从全部句子中抽取。</div>
+    </aside>
 
-        <div class="subsection">
-          <div class="subsection-title">请求地址</div>
-          <div class="url-box">
-            <span class="url-text" id="url-sentences">/api/sentences?category=a&num=5</span>
-            <div class="url-actions">
-              <button class="btn-sm btn-primary" onclick="tryApi('/api/sentences?category=a&num=5')">运行</button>
-              <button class="btn-sm btn-ghost" onclick="copyUrl('url-sentences')">复制</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="subsection">
-          <div class="subsection-title">请求参数 (Query)</div>
-          <table class="param-table">
-            <tr><th>参数名</th><th>类型</th><th>说明</th><th>必填</th></tr>
-            <tr><td class="col-name">category</td><td class="col-type">string</td><td>分类 key，如 <code>a</code></td><td class="col-optional">可选</td></tr>
-            <tr><td class="col-name">num</td><td class="col-type">integer</td><td>获取数量，默认 10，最大 100</td><td class="col-optional">可选</td></tr>
-          </table>
-        </div>
-
-        <div class="subsection">
-          <div class="subsection-title">响应示例 (JSON)</div>
-          <pre><code>{<br>  <span class="json-key">"count"</span>: <span class="json-num">5</span>,<br>  <span class="json-key">"sentences"</span>: [<br>    {<br>      <span class="json-key">"id"</span>: <span class="json-num">1</span>,<br>      <span class="json-key">"hitokoto"</span>: <span class="json-str">"..."</span>,<br>      <span class="json-key">"from"</span>: <span class="json-str">"..."</span><br>    }<br>  ]<br>}</code></pre>
-        </div>
-
-        <ul class="endpoint-list">
-          <li>端点: <code>GET /api/sentences</code></li>
-          <li>完整示例: <code>GET /api/sentences?category=a&num=10</code></li>
-        </ul>
+    <!-- Main Content -->
+    <main class="main" id="main-scroll">
+      <div class="main-inner" id="main-content">
+        <!-- Generated by JS -->
       </div>
-    </div>
+    </main>
 
-    <!-- API 3: Categories -->
-    <div class="section-title"><span class="num"># 3.</span> 分类列表</div>
-    <div class="api-card" id="card-categories">
-      <div class="api-header" onclick="toggleCard('card-categories')">
-        <div class="api-header-left">
-          <span class="method-badge">GET</span>
-          <span class="api-name">分类列表</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:12px;">
-          <span class="api-path">/api/categories</span>
-          <span class="api-toggle">▼</span>
-        </div>
+    <!-- Debug Panel -->
+    <aside class="debug-panel" id="debug-panel">
+      <div class="debug-header">
+        <span class="debug-header-title">在线运行</span>
       </div>
-      <div class="api-body">
-        <div class="api-desc">返回所有可用的分类及每类句子的数量。</div>
-
-        <div class="subsection">
-          <div class="subsection-title">请求地址</div>
-          <div class="url-box">
-            <span class="url-text" id="url-categories">/api/categories</span>
-            <div class="url-actions">
-              <button class="btn-sm btn-primary" onclick="tryApi('/api/categories')">运行</button>
-              <button class="btn-sm btn-ghost" onclick="copyUrl('url-categories')">复制</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="subsection">
-          <div class="subsection-title">请求参数 (Query)</div>
-          <table class="param-table">
-            <tr><th>参数名</th><th>类型</th><th>说明</th><th>必填</th></tr>
-            <tr><td colspan="4" class="col-optional" style="padding:10px;">无需参数</td></tr>
-          </table>
-        </div>
-
-        <div class="subsection">
-          <div class="subsection-title">响应示例 (JSON)</div>
-          <pre><code>{<br>  <span class="json-key">"categories"</span>: [<br>    {<br>      <span class="json-key">"id"</span>: <span class="json-num">1</span>,<br>      <span class="json-key">"name"</span>: <span class="json-str">"动画"</span>,<br>      <span class="json-key">"desc"</span>: <span class="json-str">"Anime - 动画"</span>,<br>      <span class="json-key">"key"</span>: <span class="json-str">"a"</span>,<br>      <span class="json-key">"count"</span>: <span class="json-num">100</span><br>    }<br>  ]<br>}</code></pre>
-        </div>
-
-        <div class="info-box">
-          <div class="info-box-title">💡 分类 key 对照</div>
-          <div class="cat-tags">
-            <span class="cat-tag">a: 动画</span>
-            <span class="cat-tag">b: 漫画</span>
-            <span class="cat-tag">c: 游戏</span>
-            <span class="cat-tag">d: 文学</span>
-            <span class="cat-tag">e: 原创</span>
-            <span class="cat-tag">f: 网络</span>
-            <span class="cat-tag">g: 其他</span>
-            <span class="cat-tag">h: 影视</span>
-            <span class="cat-tag">i: 诗词</span>
-            <span class="cat-tag">j: 网易云</span>
-            <span class="cat-tag">k: 哲学</span>
-            <span class="cat-tag">l: 抖机灵</span>
-          </div>
-        </div>
+      <div class="debug-body" id="debug-body">
+        <!-- Generated by JS -->
       </div>
-    </div>
-
-    <footer>
-      Sentences Bundle · API Powered by Cloud Function
-    </footer>
+    </aside>
   </div>
 
   <script>
-    function toggleCard(id) {
-      const card = document.getElementById(id);
-      card.classList.toggle('open');
-    }
-    // Open first card by default
-    document.getElementById('card-random').classList.add('open');
+    const API_BASE = location.origin;
 
-    async function tryApi(path) {
-      try {
-        const res = await fetch(path);
-        const data = await res.json();
-        alert(JSON.stringify(data, null, 2));
-      } catch (e) {
-        alert('请求失败: ' + e.message);
+    const APIS = [
+      {
+        id: 'random',
+        group: '句子接口',
+        name: '随机获取一言',
+        method: 'GET',
+        path: '/api/random',
+        desc: '从全部句子中随机抽取一条，或指定分类后从该分类中随机抽取。不填分类参数时从所有分类中抽取。',
+        params: [
+          { name: 'category', type: 'string', desc: '分类 key，如 a（动画）、b（漫画）、c（游戏）等', required: false }
+        ],
+        responseExample: { id: 1234, uuid: "abc-def", hitokoto: "句子内容", type: "a", from: "作品名", from_who: "作者", creator: "提交者", created_at: "2020-01-01" }
+      },
+      {
+        id: 'sentences',
+        group: '句子接口',
+        name: '批量获取句子',
+        method: 'GET',
+        path: '/api/sentences',
+        desc: '按指定数量和分类随机抽取多条句子。不填分类则从全部句子中抽取，num 参数控制返回数量。',
+        params: [
+          { name: 'category', type: 'string', desc: '分类 key，如 a、b、c 等', required: false },
+          { name: 'num', type: 'integer', desc: '获取数量，默认 10，最大 100', required: false }
+        ],
+        responseExample: { count: 2, sentences: [{ id: 1, hitokoto: "...", from: "..." }, { id: 2, hitokoto: "...", from: "..." }] }
+      },
+      {
+        id: 'categories',
+        group: '元数据接口',
+        name: '分类列表',
+        method: 'GET',
+        path: '/api/categories',
+        desc: '返回所有可用的分类及每类句子的数量。',
+        params: [],
+        responseExample: { categories: [{ id: 1, name: "动画", desc: "Anime - 动画", key: "a", count: 100 }] }
       }
+    ];
+
+    const CATEGORY_MAP = {
+      a: '动画', b: '漫画', c: '游戏', d: '文学', e: '原创',
+      f: '网络', g: '其他', h: '影视', i: '诗词', j: '网易云',
+      k: '哲学', l: '抖机灵'
+    };
+
+    let currentApiId = 'random';
+    let lastResponse = null;
+    let lastStatus = null;
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
     }
 
-    function copyUrl(id) {
-      const text = document.getElementById(id).textContent;
-      navigator.clipboard.writeText(location.origin + text).then(() => {
-        alert('已复制: ' + location.origin + text);
-      }).catch(() => {
-        const ta = document.createElement('textarea');
-        ta.value = location.origin + text;
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-        alert('已复制: ' + location.origin + text);
-      });
+    function syntaxHighlight(json) {
+      if (!json) return '';
+      const str = typeof json === 'string' ? json : JSON.stringify(json, null, 2);
+      return escapeHtml(str)
+        .replace(/"(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(?=\s*:)/g, '<span class="json-key">$&</span>')
+        .replace(/"(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(?!\s*:)/g, '<span class="json-str">$&</span>')
+        .replace(/\b(true|false)\b/g, '<span class="json-bool">$&</span>')
+        .replace(/\b(null)\b/g, '<span class="json-bool">$&</span>')
+        .replace(/\b(\d+)\b/g, '<span class="json-num">$&</span>');
     }
+
+    function renderSidebar() {
+      const container = document.getElementById('sidebar-scroll');
+      const groups = {};
+      APIS.forEach(api => {
+        if (!groups[api.group]) groups[api.group] = [];
+        groups[api.group].push(api);
+      });
+
+      let html = '';
+      for (const [groupName, items] of Object.entries(groups)) {
+        html += \`<div class="sidebar-group" data-group="\${escapeHtml(groupName)}">\`;
+        html += \`<div class="sidebar-group-title" onclick="toggleGroup(this)">\${escapeHtml(groupName)}</div>\`;
+        html += \`<div class="sidebar-items">\`;
+        for (const api of items) {
+          const active = api.id === currentApiId ? 'active' : '';
+          html += \`
+            <div class="sidebar-item \${active}" data-id="\${api.id}" onclick="selectApi('\${api.id}')">
+              <div class="sidebar-item-left">
+                <span class="method-tag get">GET</span>
+                <span class="sidebar-item-name">\${escapeHtml(api.name)}</span>
+              </div>
+            </div>
+          \`;
+        }
+        html += '</div></div>';
+      }
+      container.innerHTML = html;
+    }
+
+    function toggleGroup(el) {
+      el.parentElement.classList.toggle('collapsed');
+    }
+
+    function selectApi(id) {
+      currentApiId = id;
+      renderSidebar();
+      renderMain();
+      renderDebug();
+      lastResponse = null;
+      lastStatus = null;
+    }
+
+    function renderMain() {
+      const api = APIS.find(a => a.id === currentApiId);
+      if (!api) return;
+
+      let paramsHtml = '';
+      if (api.params.length === 0) {
+        paramsHtml = \`<div class="param-list"><div class="param-row"><span class="param-optional">无需参数</span></div></div>\`;
+      } else {
+        paramsHtml = \`
+          <div class="param-list">
+            <div class="param-header">
+              <span>Query 参数</span>
+              <span class="badge">application/json</span>
+            </div>
+        \`;
+        for (const p of api.params) {
+          const req = p.required
+            ? '<span class="param-required">必需</span>'
+            : '<span class="param-optional">可选</span>';
+          paramsHtml += \`
+            <div class="param-row">
+              <span class="param-name">\${escapeHtml(p.name)}</span>
+              <div class="param-meta">
+                <div class="param-type">\${escapeHtml(p.type)}</div>
+                <div class="param-desc">\${escapeHtml(p.desc)}</div>
+              </div>
+              \${req}
+            </div>
+          \`;
+        }
+        paramsHtml += '</div>';
+      }
+
+      const curl = \`curl -X GET "\${API_BASE}\${api.path}\"\`;
+      const js = \`fetch("\${API_BASE}\${api.path}")
+  .then(r => r.json())
+  .then(console.log);\`;
+
+      document.getElementById('main-content').innerHTML = \`
+        <div class="api-header-area">
+          <div class="api-breadcrumb">\${escapeHtml(api.group)} / \${escapeHtml(api.name)}</div>
+          <div class="api-title">\${escapeHtml(api.name)}</div>
+          <div class="api-path-bar">
+            <span class="method-tag get">GET</span>
+            <code>\${escapeHtml(api.path)}</code>
+          </div>
+          <div class="api-desc">\${escapeHtml(api.desc)}</div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">请求参数</div>
+          \${paramsHtml}
+        </div>
+
+        <div class="section">
+          <div class="section-title">返回响应</div>
+          <div class="response-card">
+            <div class="response-header">
+              <span class="status-dot"></span>
+              <span class="status-text">200 成功</span>
+            </div>
+            <div class="response-body">
+              <div class="response-sub">application/json · 业务响应</div>
+              <pre class="code-block"><code>\${syntaxHighlight(api.responseExample)}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">请求示例</div>
+          <div class="example-tabs">
+            <button class="example-tab active" onclick="switchExample(this,'curl')">cURL</button>
+            <button class="example-tab" onclick="switchExample(this,'js')">JavaScript</button>
+          </div>
+          <pre class="code-block" id="example-curl"><code>\${escapeHtml(curl)}</code></pre>
+          <pre class="code-block" id="example-js" style="display:none"><code>\${escapeHtml(js)}</code></pre>
+        </div>
+
+        \${api.id !== 'categories' ? \`
+        <div class="section">
+          <div class="section-title">分类对照</div>
+          <div class="param-list">
+            <div class="param-header">可用分类 key</div>
+            \${Object.entries(CATEGORY_MAP).map(([k,v]) => \`
+              <div class="param-row">
+                <span class="param-name">\${k}</span>
+                <div class="param-meta"><div class="param-desc">\${escapeHtml(v)}</div></div>
+              </div>
+            \`).join('')}
+          </div>
+        </div>
+        \` : ''}
+      \`;
+    }
+
+    function switchExample(btn, type) {
+      document.querySelectorAll('.example-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('example-curl').style.display = type === 'curl' ? 'block' : 'none';
+      document.getElementById('example-js').style.display = type === 'js' ? 'block' : 'none';
+    }
+
+    function renderDebug() {
+      const api = APIS.find(a => a.id === currentApiId);
+      if (!api) return;
+
+      let inputsHtml = '';
+      if (api.params.length === 0) {
+        inputsHtml = '<div style="color:var(--text-muted);font-size:12px;padding:4px 0;">该接口无需参数</div>';
+      } else {
+        inputsHtml = \`
+          <table class="debug-input-table">
+            <tr><th>参数</th><th>值</th></tr>
+            \${api.params.map(p => \`
+              <tr>
+                <td><span class="param-name">\${escapeHtml(p.name)}</span></td>
+                <td><input type="text" id="debug-\${p.name}" placeholder="\${escapeHtml(p.desc)}"></td>
+              </tr>
+            \`).join('')}
+          </table>
+        \`;
+      }
+
+      const resultHtml = lastResponse !== null
+        ? \`
+          <div class="debug-result-header">
+            <span class="debug-result-title">返回结果</span>
+            <span class="debug-status \${lastStatus >= 200 && lastStatus < 300 ? 'ok' : 'err'}">\${lastStatus}</span>
+          </div>
+          <pre class="code-block"><code>\${syntaxHighlight(lastResponse)}</code></pre>
+        \`
+        : \`<div class="debug-result-empty">点击「发送」按钮获取返回结果</div>\`;
+
+      document.getElementById('debug-body').innerHTML = \`
+        <div class="debug-url-bar">
+          <span class="method-tag get">GET</span>
+          <div class="debug-url">\${escapeHtml(api.path)}</div>
+          <button class="btn-send" onclick="sendDebug()">发送</button>
+        </div>
+
+        <div class="debug-section-title">Query 参数</div>
+        \${inputsHtml}
+
+        <div class="debug-result">
+          \${resultHtml}
+        </div>
+      \`;
+    }
+
+    async function sendDebug() {
+      const api = APIS.find(a => a.id === currentApiId);
+      if (!api) return;
+
+      const url = new URL(api.path, API_BASE);
+      for (const p of api.params) {
+        const val = document.getElementById('debug-' + p.name)?.value.trim();
+        if (val) url.searchParams.set(p.name, val);
+      }
+
+      try {
+        const res = await fetch(url.toString());
+        lastStatus = res.status;
+        const data = await res.json();
+        lastResponse = data;
+      } catch (e) {
+        lastStatus = 0;
+        lastResponse = { error: e.message };
+      }
+      renderDebug();
+    }
+
+    // Search
+    document.getElementById('search-input').addEventListener('input', function() {
+      const q = this.value.toLowerCase();
+      document.querySelectorAll('.sidebar-group').forEach(g => {
+        const items = g.querySelectorAll('.sidebar-item');
+        let hasVisible = false;
+        items.forEach(item => {
+          const name = item.querySelector('.sidebar-item-name').textContent.toLowerCase();
+          const visible = name.includes(q);
+          item.style.display = visible ? 'flex' : 'none';
+          if (visible) hasVisible = true;
+        });
+        g.style.display = hasVisible ? 'block' : 'none';
+      });
+    });
+
+    // Init
+    renderSidebar();
+    renderMain();
+    renderDebug();
   </script>
 </body>
 </html>`;
