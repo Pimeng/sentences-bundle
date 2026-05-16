@@ -15,19 +15,26 @@ export default function onRequest(context) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>一言句子包 API</title>
+  <title>Sentences Bundle API 文档</title>
   <style>
     :root {
-      --bg: #f5f7fa;
-      --card-bg: #fff;
-      --primary: #4f46e5;
-      --primary-light: #e0e7ff;
-      --text: #1f2937;
-      --text-secondary: #6b7280;
-      --border: #e5e7eb;
-      --radius: 12px;
-      --shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
-      --shadow-hover: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.08);
+      --bg: #1a1a1a;
+      --card-bg: #252525;
+      --card-bg-hover: #2e2e2e;
+      --primary: #10b981;
+      --primary-hover: #059669;
+      --primary-bg: rgba(16, 185, 129, 0.15);
+      --accent: #6366f1;
+      --accent-bg: rgba(99, 102, 241, 0.15);
+      --text: #e5e7eb;
+      --text-secondary: #9ca3af;
+      --text-muted: #6b7280;
+      --border: #374151;
+      --border-light: #4b5563;
+      --code-bg: #1f2937;
+      --radius: 10px;
+      --radius-sm: 6px;
+      --shadow: 0 4px 6px -1px rgba(0,0,0,0.3), 0 2px 4px -2px rgba(0,0,0,0.3);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -35,218 +42,320 @@ export default function onRequest(context) {
       background: var(--bg);
       color: var(--text);
       line-height: 1.6;
+      font-size: 14px;
     }
     .container {
-      max-width: 960px;
+      max-width: 860px;
       margin: 0 auto;
-      padding: 32px 20px;
+      padding: 40px 20px;
     }
     header {
-      text-align: center;
-      margin-bottom: 36px;
+      margin-bottom: 40px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
     }
     header h1 {
-      font-size: 2rem;
+      font-size: 1.6rem;
       font-weight: 700;
       margin-bottom: 6px;
-      background: linear-gradient(90deg, #4f46e5, #8b5cf6);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: #f3f4f6;
     }
     header p {
       color: var(--text-secondary);
-      font-size: 0.95rem;
+      font-size: 0.9rem;
     }
+
+    /* Section Title */
     .section-title {
       font-size: 1.15rem;
       font-weight: 600;
-      margin: 32px 0 16px;
+      margin: 36px 0 18px;
+      color: #f3f4f6;
       display: flex;
       align-items: center;
       gap: 8px;
     }
-    .tutorial {
+    .section-title .num {
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    /* API Endpoint Card */
+    .api-card {
       background: var(--card-bg);
+      border: 1px solid var(--border);
       border-radius: var(--radius);
-      box-shadow: var(--shadow);
       overflow: hidden;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
     }
-    .tutorial-item {
-      border-bottom: 1px solid var(--border);
-    }
-    .tutorial-item:last-child { border-bottom: none; }
-    .tutorial summary {
-      cursor: pointer;
-      padding: 16px 20px;
-      font-weight: 600;
-      color: var(--text);
-      user-select: none;
-      list-style: none;
+    .api-header {
       display: flex;
       align-items: center;
-      gap: 10px;
-    }
-    .tutorial summary::-webkit-details-marker { display: none; }
-    .tutorial summary::before {
-      content: '▸';
-      color: var(--primary);
-      font-size: 0.9rem;
-      transition: transform .2s;
-      display: inline-block;
-    }
-    .tutorial details[open] > summary::before { transform: rotate(90deg); }
-    .tutorial details[open] > summary { background: #fafafa; }
-    .tutorial-body {
-      padding: 0 20px 18px;
-    }
-    .tutorial-body p, .tutorial-body ul {
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-      margin-bottom: 10px;
-    }
-    .tutorial-body ul { margin-left: 18px; }
-    .tutorial-body li { margin-bottom: 6px; }
-    .tutorial pre {
-      background: #1f2937;
-      color: #e5e7eb;
-      padding: 14px 16px;
-      border-radius: 8px;
-      overflow-x: auto;
-      font-size: 0.85rem;
-      line-height: 1.55;
-      margin: 10px 0;
-    }
-    .tutorial code {
-      font-family: "Fira Code", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-    }
-    .inline-code {
-      background: var(--primary-light);
-      color: var(--primary);
-      padding: 1px 5px;
-      border-radius: 4px;
-      font-size: 0.85em;
-    }
-    .toolbar {
-      display: flex;
-      justify-content: flex-end;
-      margin-bottom: 14px;
-    }
-    .btn {
-      padding: 7px 16px;
-      border-radius: 8px;
-      border: none;
+      justify-content: space-between;
+      padding: 14px 18px;
       cursor: pointer;
-      font-size: 0.9rem;
+      user-select: none;
+      transition: background 0.2s;
+    }
+    .api-header:hover {
+      background: var(--card-bg-hover);
+    }
+    .api-header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .method-badge {
       background: var(--primary);
       color: #fff;
-      transition: background .2s;
-      display: inline-flex;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: var(--radius-sm);
+      letter-spacing: 0.5px;
+    }
+    .api-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+    .api-path {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-family: "Fira Code", "SFMono-Regular", Consolas, monospace;
+    }
+    .api-toggle {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      transition: transform 0.2s;
+    }
+    .api-card.open .api-toggle {
+      transform: rotate(180deg);
+    }
+
+    /* API Body */
+    .api-body {
+      display: none;
+      padding: 0 18px 18px;
+      border-top: 1px solid var(--border);
+    }
+    .api-card.open .api-body {
+      display: block;
+    }
+    .api-desc {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      padding: 14px 0 6px;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin: 14px 0;
+    }
+    .tab {
+      padding: 5px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      background: transparent;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab.active {
+      background: var(--accent-bg);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    /* Subsection */
+    .subsection {
+      margin-top: 18px;
+    }
+    .subsection-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 10px;
+      padding-left: 10px;
+      border-left: 3px solid var(--accent);
+    }
+
+    /* URL Box */
+    .url-box {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-family: "Fira Code", "SFMono-Regular", Consolas, monospace;
+      font-size: 0.85rem;
+    }
+    .url-text {
+      color: #a5b4fc;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    .url-actions {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .btn-sm {
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      border: none;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-light);
+    }
+    .btn-ghost:hover {
+      background: var(--card-bg-hover);
+      color: var(--text);
+    }
+
+    /* Table */
+    .param-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    .param-table th,
+    .param-table td {
+      text-align: left;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+    }
+    .param-table th {
+      background: var(--code-bg);
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    .param-table td {
+      color: var(--text);
+    }
+    .param-table .col-name {
+      color: #a5b4fc;
+      font-family: "Fira Code", "SFMono-Regular", Consolas, monospace;
+    }
+    .param-table .col-type {
+      color: var(--primary);
+    }
+    .param-table .col-optional {
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* Code Block */
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      overflow-x: auto;
+      font-size: 0.82rem;
+      line-height: 1.55;
+      margin: 0;
+    }
+    code {
+      font-family: "Fira Code", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+    .json-key { color: #93c5fd; }
+    .json-str { color: #86efac; }
+    .json-num { color: #fca5a5; }
+    .json-bool { color: #fcd34d; }
+    .json-null { color: #fcd34d; }
+
+    /* Endpoint List */
+    .endpoint-list {
+      margin-top: 8px;
+      padding-left: 18px;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+    .endpoint-list li {
+      margin-bottom: 8px;
+      line-height: 1.6;
+    }
+    .endpoint-list code {
+      background: var(--code-bg);
+      padding: 1px 5px;
+      border-radius: 4px;
+      color: #a5b4fc;
+      font-size: 0.85em;
+    }
+
+    /* Info Box */
+    .info-box {
+      background: rgba(99, 102, 241, 0.08);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      margin-top: 14px;
+    }
+    .info-box-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+      display: flex;
       align-items: center;
       gap: 6px;
     }
-    .btn:hover { background: #4338ca; }
-    .btn-ghost {
-      background: transparent;
-      color: var(--primary);
-      border: 1px solid var(--primary);
-    }
-    .btn-ghost:hover { background: var(--primary-light); }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 16px;
-    }
-    .card {
-      background: var(--card-bg);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      transition: transform .2s, box-shadow .2s;
-      position: relative;
-    }
-    .card:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-hover);
-    }
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-    .card-title {
-      font-size: 1.05rem;
-      font-weight: 600;
-    }
-    .card-desc {
-      font-size: 0.8rem;
+    .info-box p {
       color: var(--text-secondary);
-      margin-top: 2px;
+      font-size: 0.85rem;
+      line-height: 1.6;
     }
-    .card-tag {
-      background: var(--primary-light);
-      color: var(--primary);
-      padding: 2px 8px;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: 500;
+    .info-box code {
+      background: var(--code-bg);
+      padding: 1px 5px;
+      border-radius: 4px;
+      color: #a5b4fc;
+      font-size: 0.85em;
     }
-    .card-body {
-      flex: 1;
-      font-size: 0.95rem;
-      line-height: 1.7;
-      margin-bottom: 14px;
-      word-break: break-word;
-      transition: opacity .15s;
-    }
-    .card-meta {
-      font-size: 0.82rem;
-      color: var(--text-secondary);
+
+    /* Category tags */
+    .cat-tags {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
     }
-    .card-actions {
-      display: flex;
-      gap: 8px;
-    }
-    .card-actions button {
-      background: none;
+    .cat-tag {
+      background: var(--code-bg);
       border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 4px 10px;
-      font-size: 0.78rem;
       color: var(--text-secondary);
-      cursor: pointer;
-      transition: all .2s;
+      padding: 2px 8px;
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      font-family: "Fira Code", "SFMono-Regular", Consolas, monospace;
     }
-    .card-actions button:hover {
-      border-color: var(--primary);
-      color: var(--primary);
-      background: var(--primary-light);
-    }
-    .loading {
-      text-align: center;
-      padding: 40px;
-      color: var(--text-secondary);
-    }
-    .spinner {
-      width: 36px;
-      height: 36px;
-      border: 3px solid var(--border);
-      border-top-color: var(--primary);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 12px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+
     footer {
       text-align: center;
-      padding: 32px 0 16px;
-      font-size: 0.82rem;
-      color: var(--text-secondary);
+      padding: 40px 0 16px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
     }
   </style>
 </head>
@@ -254,48 +363,166 @@ export default function onRequest(context) {
   <div class="container">
     <header>
       <h1>Sentences Bundle API</h1>
-      <p>基于 Cloud Function 的一言句子服务 · 支持随机获取、分类查询、批量抽取</p>
+      <p>一言句子包 · Cloud Function API 文档</p>
     </header>
 
-    <h2 class="section-title">📖 API 文档</h2>
-    <section class="tutorial">
-      <div class="tutorial-item">
-        <details>
-          <summary>🎲 随机获取一言</summary>
-          <div class="tutorial-body">
-            <pre><code>GET /api/random
-GET /api/random?category=a</code></pre>
-            <p><span class="inline-code">category</span>（可选）：分类 key，如 <span class="inline-code">a</span>（动画）。不填则从全部随机。</p>
-          </div>
-        </details>
+    <!-- API 1: Random -->
+    <div class="section-title"><span class="num"># 1.</span> 随机获取一言</div>
+    <div class="api-card" id="card-random">
+      <div class="api-header" onclick="toggleCard('card-random')">
+        <div class="api-header-left">
+          <span class="method-badge">GET</span>
+          <span class="api-name">随机句子</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span class="api-path">/api/random</span>
+          <span class="api-toggle">▼</span>
+        </div>
       </div>
-      <div class="tutorial-item">
-        <details>
-          <summary>📂 获取分类列表</summary>
-          <div class="tutorial-body">
-            <pre><code>GET /api/categories</code></pre>
-            <p>返回所有分类及每类句子数量。</p>
-          </div>
-        </details>
-      </div>
-      <div class="tutorial-item">
-        <details>
-          <summary>📑 按分类和数量获取</summary>
-          <div class="tutorial-body">
-            <pre><code>GET /api/sentences?category=a&num=10</code></pre>
-            <p><span class="inline-code">category</span>（可选）：分类 key。不填则从全部抽取。</p>
-            <p><span class="inline-code">num</span>（可选）：获取数量，默认 10，最大 100。</p>
-          </div>
-        </details>
-      </div>
-    </section>
+      <div class="api-body">
+        <div class="api-desc">从全部句子中随机抽取一条，或指定分类后从该分类中随机抽取。</div>
+        <div class="tabs">
+          <button class="tab active">默认</button>
+          <button class="tab">指定分类</button>
+        </div>
 
-    <h2 class="section-title">🎴 分类预览</h2>
-    <div class="toolbar">
-      <button class="btn btn-ghost" id="btn-refresh">🔄 全部刷新</button>
+        <div class="subsection">
+          <div class="subsection-title">请求地址</div>
+          <div class="url-box">
+            <span class="url-text" id="url-random">/api/random</span>
+            <div class="url-actions">
+              <button class="btn-sm btn-primary" onclick="tryApi('/api/random')">运行</button>
+              <button class="btn-sm btn-ghost" onclick="copyUrl('url-random')">复制</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <div class="subsection-title">请求参数 (Query)</div>
+          <table class="param-table">
+            <tr><th>参数名</th><th>类型</th><th>说明</th><th>必填</th></tr>
+            <tr><td class="col-name">category</td><td class="col-type">string</td><td>分类 key，如 <code>a</code>（动画）</td><td class="col-optional">可选</td></tr>
+          </table>
+        </div>
+
+        <div class="subsection">
+          <div class="subsection-title">响应示例 (JSON)</div>
+          <pre><code>{<br>  <span class="json-key">"id"</span>: <span class="json-num">1234</span>,<br>  <span class="json-key">"uuid"</span>: <span class="json-str">"abc-def-123"</span>,<br>  <span class="json-key">"hitokoto"</span>: <span class="json-str">「句子内容」</span>,<br>  <span class="json-key">"type"</span>: <span class="json-str">"a"</span>,<br>  <span class="json-key">"from"</span>: <span class="json-str">"作品名"</span>,<br>  <span class="json-key">"from_who"</span>: <span class="json-str">"作者"</span>,<br>  <span class="json-key">"creator"</span>: <span class="json-str">"提交者"</span>,<br>  <span class="json-key">"created_at"</span>: <span class="json-str">"2020-01-01"</span><br>}</code></pre>
+        </div>
+
+        <ul class="endpoint-list">
+          <li>端点: <code>GET /api/random</code></li>
+          <li>带分类: <code>GET /api/random?category=a</code></li>
+        </ul>
+      </div>
     </div>
-    <div id="preview">
-      <div class="loading"><div class="spinner"></div>正在加载...</div>
+
+    <!-- API 2: Sentences -->
+    <div class="section-title"><span class="num"># 2.</span> 批量获取句子</div>
+    <div class="api-card" id="card-sentences">
+      <div class="api-header" onclick="toggleCard('card-sentences')">
+        <div class="api-header-left">
+          <span class="method-badge">GET</span>
+          <span class="api-name">批量句子</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span class="api-path">/api/sentences</span>
+          <span class="api-toggle">▼</span>
+        </div>
+      </div>
+      <div class="api-body">
+        <div class="api-desc">按指定数量和分类随机抽取多条句子。不填分类则从全部句子中抽取。</div>
+
+        <div class="subsection">
+          <div class="subsection-title">请求地址</div>
+          <div class="url-box">
+            <span class="url-text" id="url-sentences">/api/sentences?category=a&num=5</span>
+            <div class="url-actions">
+              <button class="btn-sm btn-primary" onclick="tryApi('/api/sentences?category=a&num=5')">运行</button>
+              <button class="btn-sm btn-ghost" onclick="copyUrl('url-sentences')">复制</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <div class="subsection-title">请求参数 (Query)</div>
+          <table class="param-table">
+            <tr><th>参数名</th><th>类型</th><th>说明</th><th>必填</th></tr>
+            <tr><td class="col-name">category</td><td class="col-type">string</td><td>分类 key，如 <code>a</code></td><td class="col-optional">可选</td></tr>
+            <tr><td class="col-name">num</td><td class="col-type">integer</td><td>获取数量，默认 10，最大 100</td><td class="col-optional">可选</td></tr>
+          </table>
+        </div>
+
+        <div class="subsection">
+          <div class="subsection-title">响应示例 (JSON)</div>
+          <pre><code>{<br>  <span class="json-key">"count"</span>: <span class="json-num">5</span>,<br>  <span class="json-key">"sentences"</span>: [<br>    {<br>      <span class="json-key">"id"</span>: <span class="json-num">1</span>,<br>      <span class="json-key">"hitokoto"</span>: <span class="json-str">"..."</span>,<br>      <span class="json-key">"from"</span>: <span class="json-str">"..."</span><br>    }<br>  ]<br>}</code></pre>
+        </div>
+
+        <ul class="endpoint-list">
+          <li>端点: <code>GET /api/sentences</code></li>
+          <li>完整示例: <code>GET /api/sentences?category=a&num=10</code></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- API 3: Categories -->
+    <div class="section-title"><span class="num"># 3.</span> 分类列表</div>
+    <div class="api-card" id="card-categories">
+      <div class="api-header" onclick="toggleCard('card-categories')">
+        <div class="api-header-left">
+          <span class="method-badge">GET</span>
+          <span class="api-name">分类列表</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span class="api-path">/api/categories</span>
+          <span class="api-toggle">▼</span>
+        </div>
+      </div>
+      <div class="api-body">
+        <div class="api-desc">返回所有可用的分类及每类句子的数量。</div>
+
+        <div class="subsection">
+          <div class="subsection-title">请求地址</div>
+          <div class="url-box">
+            <span class="url-text" id="url-categories">/api/categories</span>
+            <div class="url-actions">
+              <button class="btn-sm btn-primary" onclick="tryApi('/api/categories')">运行</button>
+              <button class="btn-sm btn-ghost" onclick="copyUrl('url-categories')">复制</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <div class="subsection-title">请求参数 (Query)</div>
+          <table class="param-table">
+            <tr><th>参数名</th><th>类型</th><th>说明</th><th>必填</th></tr>
+            <tr><td colspan="4" class="col-optional" style="padding:10px;">无需参数</td></tr>
+          </table>
+        </div>
+
+        <div class="subsection">
+          <div class="subsection-title">响应示例 (JSON)</div>
+          <pre><code>{<br>  <span class="json-key">"categories"</span>: [<br>    {<br>      <span class="json-key">"id"</span>: <span class="json-num">1</span>,<br>      <span class="json-key">"name"</span>: <span class="json-str">"动画"</span>,<br>      <span class="json-key">"desc"</span>: <span class="json-str">"Anime - 动画"</span>,<br>      <span class="json-key">"key"</span>: <span class="json-str">"a"</span>,<br>      <span class="json-key">"count"</span>: <span class="json-num">100</span><br>    }<br>  ]<br>}</code></pre>
+        </div>
+
+        <div class="info-box">
+          <div class="info-box-title">💡 分类 key 对照</div>
+          <div class="cat-tags">
+            <span class="cat-tag">a: 动画</span>
+            <span class="cat-tag">b: 漫画</span>
+            <span class="cat-tag">c: 游戏</span>
+            <span class="cat-tag">d: 文学</span>
+            <span class="cat-tag">e: 原创</span>
+            <span class="cat-tag">f: 网络</span>
+            <span class="cat-tag">g: 其他</span>
+            <span class="cat-tag">h: 影视</span>
+            <span class="cat-tag">i: 诗词</span>
+            <span class="cat-tag">j: 网易云</span>
+            <span class="cat-tag">k: 哲学</span>
+            <span class="cat-tag">l: 抖机灵</span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <footer>
@@ -304,111 +531,37 @@ GET /api/random?category=a</code></pre>
   </div>
 
   <script>
-    (async () => {
-      const $ = sel => document.querySelector(sel);
+    function toggleCard(id) {
+      const card = document.getElementById(id);
+      card.classList.toggle('open');
+    }
+    // Open first card by default
+    document.getElementById('card-random').classList.add('open');
 
-      function escapeHtml(str) {
-        if (!str) return '';
-        return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-      }
-
-      async function renderPreview() {
-        const container = $('#preview');
-        container.innerHTML = '<div class="loading"><div class="spinner"></div>正在加载...</div>';
-
-        const res = await fetch('/api/categories');
-        if (!res.ok) throw new Error('无法加载分类数据');
-        const { categories } = await res.json();
-
-        const grid = document.createElement('div');
-        grid.className = 'grid';
-
-        for (const cat of categories) {
-          const r = await fetch('/api/random?category=' + encodeURIComponent(cat.key));
-          const s = r.ok ? await r.json() : null;
-
-          const card = document.createElement('div');
-          card.className = 'card';
-          card.innerHTML = \`
-            <div class="card-header">
-              <div>
-                <div class="card-title">\${escapeHtml(cat.name)}</div>
-                <div class="card-desc">\${escapeHtml(cat.desc)}</div>
-              </div>
-              <span class="card-tag">\${cat.count} 句</span>
-            </div>
-            <div class="card-body" id="quote-\${cat.key}">
-              \${s ? '「' + escapeHtml(s.hitokoto) + '」' : '加载失败'}
-            </div>
-            <div class="card-meta">
-              <span id="meta-\${cat.key}">\${s && s.from ? '《' + escapeHtml(s.from) + '》' + (s.from_who ? ' ' + escapeHtml(s.from_who) : '') : ''}</span>
-              <div class="card-actions">
-                <button onclick="refreshCat('\${cat.key}')">🔄 换一句</button>
-                <button onclick="copyQuote('\${cat.key}')">📋 复制</button>
-              </div>
-            </div>
-          \`;
-          grid.appendChild(card);
-        }
-
-        container.innerHTML = '';
-        container.appendChild(grid);
-      }
-
-      window.refreshCat = async (key) => {
-        const el = document.getElementById('quote-' + key);
-        const meta = document.getElementById('meta-' + key);
-        if (!el) return;
-        try {
-          const res = await fetch('/api/random?category=' + encodeURIComponent(key));
-          const s = await res.json();
-          el.style.opacity = '0';
-          setTimeout(() => {
-            el.innerHTML = '「' + escapeHtml(s.hitokoto) + '」';
-            el.style.opacity = '1';
-            if (meta) {
-              meta.textContent = (s.from ? '《' + s.from + '》' : '') + (s.from_who ? ' ' + s.from_who : '');
-            }
-          }, 150);
-        } catch (e) {
-          el.textContent = '加载失败';
-        }
-      };
-
-      window.copyQuote = async (key) => {
-        const el = document.getElementById('quote-' + key);
-        if (!el) return;
-        const text = el.textContent.replace(/^「|」$/g, '').trim();
-        try {
-          await navigator.clipboard.writeText(text);
-          const btn = el.closest('.card').querySelector('.card-actions button:last-child');
-          const orig = btn.textContent;
-          btn.textContent = '✓ 已复制';
-          setTimeout(() => btn.textContent = orig, 1200);
-        } catch (err) {
-          const ta = document.createElement('textarea');
-          ta.value = text;
-          document.body.appendChild(ta);
-          ta.select();
-          document.execCommand('copy');
-          document.body.removeChild(ta);
-        }
-      };
-
-      $('#btn-refresh').addEventListener('click', () => {
-        document.querySelectorAll('.card').forEach((card, i) => {
-          const key = card.querySelector('.card-body').id.replace('quote-', '');
-          setTimeout(() => window.refreshCat(key), i * 60);
-        });
-      });
-
+    async function tryApi(path) {
       try {
-        await renderPreview();
-      } catch (err) {
-        $('#preview').innerHTML = '<div class="loading">加载失败：' + escapeHtml(err.message) + '</div>';
-        console.error(err);
+        const res = await fetch(path);
+        const data = await res.json();
+        alert(JSON.stringify(data, null, 2));
+      } catch (e) {
+        alert('请求失败: ' + e.message);
       }
-    })();
+    }
+
+    function copyUrl(id) {
+      const text = document.getElementById(id).textContent;
+      navigator.clipboard.writeText(location.origin + text).then(() => {
+        alert('已复制: ' + location.origin + text);
+      }).catch(() => {
+        const ta = document.createElement('textarea');
+        ta.value = location.origin + text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        alert('已复制: ' + location.origin + text);
+      });
+    }
   </script>
 </body>
 </html>`;
