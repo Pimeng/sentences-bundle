@@ -1,19 +1,21 @@
-# 腾讯云 EdgeOne Pages Functions 部署说明
+# 腾讯云 Cloud Function 部署说明
 
-本项目基于 [hitokoto-osc/sentences-bundle](https://github.com/hitokoto-osc/sentences-bundle) 构建，已适配为 [腾讯云 EdgeOne Pages Functions](https://cloud.tencent.com/document/product/1552/127416) 项目，提供随机一言、分类列表和批量获取等 API 接口。
+本项目基于 [hitokoto-osc/sentences-bundle](https://github.com/hitokoto-osc/sentences-bundle) 构建，已适配为腾讯云 **Node.js Cloud Function** 项目，提供随机一言、分类列表和批量获取等 API 接口。
 
 ## 项目结构
 
 ```
-edge-functions/
+cloud-functions/
+├── index.js               # GET /                 动态首页（调用 API 展示）
 ├── api/
 │   ├── random.js          # GET /api/random       随机获取一言
 │   ├── sentences.js       # GET /api/sentences    按分类和数量获取一言
 │   └── categories.js      # GET /api/categories   获取一言分类列表
 ├── lib/
-│   ├── data.js            # 数据加载模块
-│   ├── utils.js           # 工具函数
-│   └── data/              # 一言数据（由 JSON 转换而来）
+│   ├── data.js            # 数据加载模块（原生 fs 读取 JSON）
+│   └── utils.js           # 工具函数
+sentences/                  # 原始一言数据
+└── categories.json         # 原始分类数据
 ```
 
 ## API 接口
@@ -80,16 +82,8 @@ GET /api/sentences?category=a&num=10
 
 1. 登录 [腾讯云 EdgeOne Pages](https://console.cloud.tencent.com/edgeone/pages) 控制台。
 2. 创建新项目，导入本 Git 仓库。
-3. 构建配置保持默认即可（EdgeOne Pages Functions 会自动识别 `edge-functions` 目录）。
+3. 构建配置保持默认即可（平台会自动识别 `cloud-functions` 目录下的 Node.js 函数）。
 4. 部署完成后，即可通过分配的域名访问上述 API。
-
-## 本地数据更新
-
-如果更新了 `sentences/` 或 `categories.json` 中的原始数据，请运行以下命令重新生成 Edge Functions 可用的 JS 模块：
-
-```bash
-node build-edge-functions.js
-```
 
 ## 分类 Key 对照表
 

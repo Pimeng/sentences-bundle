@@ -1,9 +1,21 @@
-<!DOCTYPE html>
+export default function onRequest(context) {
+  if (context.request.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      },
+    });
+  }
+
+  const html = `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>一言句子包</title>
+  <title>一言句子包 API</title>
   <style>
     :root {
       --bg: #f5f7fa;
@@ -45,8 +57,6 @@
       color: var(--text-secondary);
       font-size: 0.95rem;
     }
-
-    /* 教程区 */
     .section-title {
       font-size: 1.15rem;
       font-weight: 600;
@@ -109,15 +119,13 @@
     .tutorial code {
       font-family: "Fira Code", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
     }
-    .tutorial .inline-code {
+    .inline-code {
       background: var(--primary-light);
       color: var(--primary);
       padding: 1px 5px;
       border-radius: 4px;
       font-size: 0.85em;
     }
-
-    /* 分类预览 */
     .toolbar {
       display: flex;
       justify-content: flex-end;
@@ -143,7 +151,6 @@
       border: 1px solid var(--primary);
     }
     .btn-ghost:hover { background: var(--primary-light); }
-
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -192,6 +199,7 @@
       line-height: 1.7;
       margin-bottom: 14px;
       word-break: break-word;
+      transition: opacity .15s;
     }
     .card-meta {
       font-size: 0.82rem;
@@ -219,8 +227,6 @@
       color: var(--primary);
       background: var(--primary-light);
     }
-
-    /* 加载 */
     .loading {
       text-align: center;
       padding: 40px;
@@ -236,7 +242,6 @@
       margin: 0 auto 12px;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-
     footer {
       text-align: center;
       padding: 32px 0 16px;
@@ -248,144 +253,44 @@
 <body>
   <div class="container">
     <header>
-      <h1>Sentences Bundle</h1>
-      <p>一言句子包 · 动画 / 漫画 / 游戏 / 文学 / 诗词 / 网易云 / 哲学 / 抖机灵 等 12 类语录</p>
+      <h1>Sentences Bundle API</h1>
+      <p>基于 Cloud Function 的一言句子服务 · 支持随机获取、分类查询、批量抽取</p>
     </header>
 
-    <h2 class="section-title">📖 使用教程</h2>
+    <h2 class="section-title">📖 API 文档</h2>
     <section class="tutorial">
       <div class="tutorial-item">
         <details>
-          <summary>📂 项目结构说明</summary>
+          <summary>🎲 随机获取一言</summary>
           <div class="tutorial-body">
-            <p>本项目是一个静态 JSON 数据集，可直接部署到任意静态托管服务（GitHub Pages、Vercel、Cloudflare Pages 等）。</p>
-            <pre><code>sentences-bundle/
-├── categories.json          # 分类列表
-├── sentences/
-│   ├── a.json               # 动画
-│   ├── b.json               # 漫画
-│   ├── c.json               # 游戏
-│   ├── d.json               # 文学
-│   ├── e.json               # 原创
-│   ├── f.json               # 网络
-│   ├── g.json               # 其他
-│   ├── h.json               # 影视
-│   ├── i.json               # 诗词
-│   ├── j.json               # 网易云
-│   ├── k.json               # 哲学
-│   └── l.json               # 抖机灵
-└── index.html               # 本页面</code></pre>
+            <pre><code>GET /api/random
+GET /api/random?category=a</code></pre>
+            <p><span class="inline-code">category</span>（可选）：分类 key，如 <span class="inline-code">a</span>（动画）。不填则从全部随机。</p>
           </div>
         </details>
       </div>
-
       <div class="tutorial-item">
         <details>
-          <summary>📡 读取分类列表</summary>
+          <summary>📂 获取分类列表</summary>
           <div class="tutorial-body">
-            <p>通过 <span class="inline-code">categories.json</span> 获取所有分类信息：</p>
-            <pre><code>GET /categories.json
-
-// 返回值示例
-[
-  {
-    "id": 1,
-    "name": "动画",
-    "desc": "Anime - 动画",
-    "key": "a",
-    "path": "./sentences/a.json"
-  }
-]</code></pre>
-            <ul>
-              <li><b>name</b>：分类中文名</li>
-              <li><b>key</b>：分类标识符（如 <span class="inline-code">a</span>），对应 <span class="inline-code">sentences/{key}.json</span></li>
-              <li><b>path</b>：该分类句子文件的相对路径</li>
-            </ul>
+            <pre><code>GET /api/categories</code></pre>
+            <p>返回所有分类及每类句子数量。</p>
           </div>
         </details>
       </div>
-
       <div class="tutorial-item">
         <details>
-          <summary>📝 读取某分类的句子</summary>
+          <summary>📑 按分类和数量获取</summary>
           <div class="tutorial-body">
-            <p>根据 <span class="inline-code">categories.json</span> 中的 <span class="inline-code">path</span> 字段，直接请求对应 JSON 文件：</p>
-            <pre><code>GET /sentences/a.json
-
-// 返回值示例（数组）
-[
-  {
-    "id": 1,
-    "uuid": "9818ecda-9cbf-4f2a-9af8-8136ef39cfcd",
-    "hitokoto": "句子内容",
-    "type": "a",
-    "from": "作品名",
-    "from_who": "作者",
-    "creator": "提交者",
-    "created_at": "1468605909",
-    "length": 22
-  }
-]</code></pre>
-            <ul>
-              <li><b>hitokoto</b>：句子正文</li>
-              <li><b>type</b>：所属分类的 key</li>
-              <li><b>from</b>：出处（作品名）</li>
-              <li><b>from_who</b>：作者（可能为 <span class="inline-code">null</span>）</li>
-              <li><b>length</b>：句子长度（字符数）</li>
-            </ul>
-          </div>
-        </details>
-      </div>
-
-      <div class="tutorial-item">
-        <details>
-          <summary>🎲 随机抽取一句（JavaScript 示例）</summary>
-          <div class="tutorial-body">
-            <p>由于本项目是纯静态 JSON，没有后端随机接口。抽取随机句子的逻辑需要在客户端实现：</p>
-            <pre><code>async function randomHitokoto() {
-  // 1. 获取分类列表
-  const cats = await (await fetch('categories.json')).json();
-
-  // 2. 随机选一个分类
-  const cat = cats[Math.floor(Math.random() * cats.length)];
-
-  // 3. 加载该分类全部句子
-  const list = await (await fetch(cat.path)).json();
-
-  // 4. 随机抽一句
-  const sentence = list[Math.floor(Math.random() * list.length)];
-
-  console.log(sentence.hitokoto);
-  console.log('出自：' + sentence.from);
-}
-
-randomHitokoto();</code></pre>
-          </div>
-        </details>
-      </div>
-
-      <div class="tutorial-item">
-        <details>
-          <summary>⚡ 快速开始（前端页面调用）</summary>
-          <div class="tutorial-body">
-            <p>在你的网页中直接引用本仓库的数据：</p>
-            <pre><code>&lt;!-- 获取动画分类随机一句 --&gt;
-&lt;script&gt;
-  fetch('https://你的域名/sentences/a.json')
-    .then(r => r.json())
-    .then(data => {
-      const s = data[Math.floor(Math.random() * data.length)];
-      document.body.innerText = s.hitokoto;
-    });
-&lt;/script&gt;</code></pre>
-            <p>如果你部署在 <span class="inline-code">GitHub Pages</span>，地址类似：</p>
-            <pre><code>https://用户名.github.io/sentences-bundle/sentences/a.json</code></pre>
+            <pre><code>GET /api/sentences?category=a&num=10</code></pre>
+            <p><span class="inline-code">category</span>（可选）：分类 key。不填则从全部抽取。</p>
+            <p><span class="inline-code">num</span>（可选）：获取数量，默认 10，最大 100。</p>
           </div>
         </details>
       </div>
     </section>
 
-    <h2 class="section-title">🎴 分类预览（每类随机一句）</h2>
+    <h2 class="section-title">🎴 分类预览</h2>
     <div class="toolbar">
       <button class="btn btn-ghost" id="btn-refresh">🔄 全部刷新</button>
     </div>
@@ -394,35 +299,13 @@ randomHitokoto();</code></pre>
     </div>
 
     <footer>
-      Sentences Bundle
+      Sentences Bundle · API Powered by Cloud Function
     </footer>
   </div>
 
   <script>
     (async () => {
       const $ = sel => document.querySelector(sel);
-
-      let categories = [];
-      let sentencesMap = {};   // key -> sentences[]
-
-      async function loadCategories() {
-        const res = await fetch('categories.json');
-        if (!res.ok) throw new Error('无法加载分类数据');
-        categories = await res.json();
-      }
-
-      async function loadSentences(cat) {
-        if (sentencesMap[cat.key]) return sentencesMap[cat.key];
-        const res = await fetch(cat.path);
-        if (!res.ok) throw new Error('无法加载 ' + cat.path);
-        const data = await res.json();
-        sentencesMap[cat.key] = data;
-        return data;
-      }
-
-      function pickRandom(arr) {
-        return arr[Math.floor(Math.random() * arr.length)];
-      }
 
       function escapeHtml(str) {
         if (!str) return '';
@@ -433,60 +316,63 @@ randomHitokoto();</code></pre>
         const container = $('#preview');
         container.innerHTML = '<div class="loading"><div class="spinner"></div>正在加载...</div>';
 
-        // 并行加载所有分类
-        await Promise.all(categories.map(c => loadSentences(c)));
+        const res = await fetch('/api/categories');
+        if (!res.ok) throw new Error('无法加载分类数据');
+        const { categories } = await res.json();
 
         const grid = document.createElement('div');
         grid.className = 'grid';
 
-        categories.forEach(cat => {
-          const list = sentencesMap[cat.key];
-          const s = pickRandom(list);
+        for (const cat of categories) {
+          const r = await fetch('/api/random?category=' + encodeURIComponent(cat.key));
+          const s = r.ok ? await r.json() : null;
+
           const card = document.createElement('div');
           card.className = 'card';
-          card.innerHTML = `
+          card.innerHTML = \`
             <div class="card-header">
               <div>
-                <div class="card-title">${escapeHtml(cat.name)}</div>
-                <div class="card-desc">${escapeHtml(cat.desc)}</div>
+                <div class="card-title">\${escapeHtml(cat.name)}</div>
+                <div class="card-desc">\${escapeHtml(cat.desc)}</div>
               </div>
-              <span class="card-tag">${list.length} 句</span>
+              <span class="card-tag">\${cat.count} 句</span>
             </div>
-            <div class="card-body" id="quote-${cat.key}">
-              「${escapeHtml(s.hitokoto)}」
+            <div class="card-body" id="quote-\${cat.key}">
+              \${s ? '「' + escapeHtml(s.hitokoto) + '」' : '加载失败'}
             </div>
             <div class="card-meta">
-              <span>${s.from ? '《' + escapeHtml(s.from) + '》' : ''}${s.from_who ? ' ' + escapeHtml(s.from_who) : ''}</span>
+              <span id="meta-\${cat.key}">\${s && s.from ? '《' + escapeHtml(s.from) + '》' + (s.from_who ? ' ' + escapeHtml(s.from_who) : '') : ''}</span>
               <div class="card-actions">
-                <button onclick="refreshCat('${cat.key}')">🔄 换一句</button>
-                <button onclick="copyQuote('${cat.key}')">📋 复制</button>
+                <button onclick="refreshCat('\${cat.key}')">🔄 换一句</button>
+                <button onclick="copyQuote('\${cat.key}')">📋 复制</button>
               </div>
             </div>
-          `;
+          \`;
           grid.appendChild(card);
-        });
+        }
 
         container.innerHTML = '';
         container.appendChild(grid);
       }
 
-      // 全局暴露供 HTML onclick 调用
-      window.refreshCat = (key) => {
-        const list = sentencesMap[key];
-        if (!list) return;
-        const s = pickRandom(list);
+      window.refreshCat = async (key) => {
         const el = document.getElementById('quote-' + key);
-        if (el) {
+        const meta = document.getElementById('meta-' + key);
+        if (!el) return;
+        try {
+          const res = await fetch('/api/random?category=' + encodeURIComponent(key));
+          const s = await res.json();
           el.style.opacity = '0';
           setTimeout(() => {
             el.innerHTML = '「' + escapeHtml(s.hitokoto) + '」';
             el.style.opacity = '1';
+            if (meta) {
+              meta.textContent = (s.from ? '《' + s.from + '》' : '') + (s.from_who ? ' ' + s.from_who : '');
+            }
           }, 150);
+        } catch (e) {
+          el.textContent = '加载失败';
         }
-        // 同时更新出处
-        const card = el.closest('.card');
-        const metaSpan = card.querySelector('.card-meta > span');
-        metaSpan.textContent = (s.from ? '《' + s.from + '》' : '') + (s.from_who ? ' ' + s.from_who : '');
       };
 
       window.copyQuote = async (key) => {
@@ -510,12 +396,13 @@ randomHitokoto();</code></pre>
       };
 
       $('#btn-refresh').addEventListener('click', () => {
-        categories.forEach(c => window.refreshCat(c.key));
+        document.querySelectorAll('.card').forEach((card, i) => {
+          const key = card.querySelector('.card-body').id.replace('quote-', '');
+          setTimeout(() => window.refreshCat(key), i * 60);
+        });
       });
 
-      // 初始化
       try {
-        await loadCategories();
         await renderPreview();
       } catch (err) {
         $('#preview').innerHTML = '<div class="loading">加载失败：' + escapeHtml(err.message) + '</div>';
@@ -524,4 +411,12 @@ randomHitokoto();</code></pre>
     })();
   </script>
 </body>
-</html>
+</html>`;
+
+  return new Response(html, {
+    status: 200,
+    headers: {
+      'Content-Type': 'text/html; charset=utf-8',
+    },
+  });
+}
