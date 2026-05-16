@@ -1,12 +1,23 @@
 import { getSentences, getAllSentences } from '../lib/data.js';
 import { jsonResponse, errorResponse } from '../lib/utils.js';
 
-export function onRequestGet(context) {
-  const url = new URL(context.request.url);
-  const category = url.searchParams.get('category');
+export default function onRequest(context) {
+  if (context.request.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      },
+    });
+  }
 
   try {
+    const url = new URL(context.request.url);
+    const category = url.searchParams.get('category');
     let sentences;
+
     if (category) {
       sentences = getSentences(category);
       if (!sentences) {
@@ -20,9 +31,7 @@ export function onRequestGet(context) {
       return errorResponse('No sentences found', 404);
     }
 
-    const randomIndex = Math.floor(Math.random() * sentences.length);
-    const item = sentences[randomIndex];
-
+    const item = sentences[Math.floor(Math.random() * sentences.length)];
     return jsonResponse({
       id: item.id,
       uuid: item.uuid,
@@ -35,15 +44,4 @@ export function onRequestGet(context) {
   } catch (err) {
     return errorResponse(err.message, 500);
   }
-}
-
-export function onRequestOptions() {
-  return new Response(null, {
-    status: 204,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-    },
-  });
 }

@@ -1,14 +1,25 @@
 import { getSentences, getAllSentences } from '../lib/data.js';
 import { jsonResponse, errorResponse, getRandomItems } from '../lib/utils.js';
 
-export function onRequestGet(context) {
-  const url = new URL(context.request.url);
-  const category = url.searchParams.get('category');
-  const numParam = url.searchParams.get('num');
-  const num = Math.min(Math.max(parseInt(numParam, 10) || 10, 1), 100);
+export default function onRequest(context) {
+  if (context.request.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      },
+    });
+  }
 
   try {
+    const url = new URL(context.request.url);
+    const category = url.searchParams.get('category');
+    const numParam = url.searchParams.get('num');
+    const num = Math.min(Math.max(parseInt(numParam, 10) || 10, 1), 100);
     let sentences;
+
     if (category) {
       sentences = getSentences(category);
       if (!sentences) {
@@ -23,7 +34,6 @@ export function onRequestGet(context) {
     }
 
     const results = getRandomItems(sentences, num);
-
     return jsonResponse({
       count: results.length,
       sentences: results.map(item => ({
@@ -39,15 +49,4 @@ export function onRequestGet(context) {
   } catch (err) {
     return errorResponse(err.message, 500);
   }
-}
-
-export function onRequestOptions() {
-  return new Response(null, {
-    status: 204,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-    },
-  });
 }

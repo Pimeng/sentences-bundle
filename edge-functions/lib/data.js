@@ -1,18 +1,19 @@
 import categories from './data/categories.js';
-import a from './data/sentences/a.js';
-import b from './data/sentences/b.js';
-import c from './data/sentences/c.js';
-import d from './data/sentences/d.js';
-import e from './data/sentences/e.js';
-import f from './data/sentences/f.js';
-import g from './data/sentences/g.js';
-import h from './data/sentences/h.js';
-import i from './data/sentences/i.js';
-import j from './data/sentences/j.js';
-import k from './data/sentences/k.js';
-import l from './data/sentences/l.js';
+import aStr from './data/sentences/a.js';
+import bStr from './data/sentences/b.js';
+import cStr from './data/sentences/c.js';
+import dStr from './data/sentences/d.js';
+import eStr from './data/sentences/e.js';
+import fStr from './data/sentences/f.js';
+import gStr from './data/sentences/g.js';
+import hStr from './data/sentences/h.js';
+import iStr from './data/sentences/i.js';
+import jStr from './data/sentences/j.js';
+import kStr from './data/sentences/k.js';
+import lStr from './data/sentences/l.js';
 
-const sentencesMap = { a, b, c, d, e, f, g, h, i, j, k, l };
+const sentencesStrMap = { a: aStr, b: bStr, c: cStr, d: dStr, e: eStr, f: fStr, g: gStr, h: hStr, i: iStr, j: jStr, k: kStr, l: lStr };
+const sentencesCache = {};
 const categoryKeys = categories.map(c => c.key);
 
 export function getCategories() {
@@ -23,14 +24,17 @@ export function getSentences(category) {
   if (!categoryKeys.includes(category)) {
     return null;
   }
-  return sentencesMap[category] || null;
+  if (!sentencesCache[category]) {
+    sentencesCache[category] = JSON.parse(sentencesStrMap[category]);
+  }
+  return sentencesCache[category];
 }
 
 let allSentencesCache = null;
 
 export function getAllSentences() {
   if (!allSentencesCache) {
-    allSentencesCache = categoryKeys.map(key => sentencesMap[key]).flat();
+    allSentencesCache = categoryKeys.map(key => getSentences(key)).flat();
   }
   return allSentencesCache;
 }
