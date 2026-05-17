@@ -482,8 +482,12 @@ async function sendDebug() {
   try {
     const res = await fetch(url.toString());
     lastStatus = res.status;
-    const data = await res.json();
-    lastResponse = data;
+    const contentType = res.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      lastResponse = await res.json();
+    } else {
+      lastResponse = await res.text();
+    }
   } catch (e) {
     lastStatus = 0;
     lastResponse = { error: e.message };
