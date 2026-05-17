@@ -95,13 +95,33 @@ const APIS = [
         { id: 1, name: "动画", desc: "Anime - 动画", key: "a", count: 100 }
       ]
     }
+  },
+  {
+    id: 'nanbeng',
+    group: '句子接口',
+    name: '随机获取难绷语录',
+    method: 'GET',
+    path: '/api/nanbeng',
+    desc: '从难绷语录分类中随机抽取一条。',
+    params: [
+      { name: 'e', type: 'string', desc: '返回格式，json 返回 JSON（默认），text 返回纯文本句子', required: false }
+    ],
+    responseExample: {
+      id: 11291,
+      uuid: "90f2f12b-3b67-4848-b59d-bbaa083595ba",
+      hitokoto: "-安卓iOS？\\n-昂\\n里莫的秘密书房\\n-安卓iOS？\\n-对\\n-？\\n-安卓\\n",
+      type: "nanbeng",
+      from: "澜轶小卖部",
+      from_who: null,
+      length: 44
+    }
   }
 ];
 
 const CATEGORY_MAP = {
   a: '动画', b: '漫画', c: '游戏', d: '文学', e: '原创',
   f: '网络', g: '其他', h: '影视', i: '诗词', j: '网易云',
-  k: '哲学', l: '抖机灵'
+  k: '哲学', l: '抖机灵', nanbeng: 'nanbeng'
 };
 
 let currentApiId = 'random';

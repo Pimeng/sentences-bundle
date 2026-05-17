@@ -11,8 +11,9 @@ import i from './data/sentences/i.js';
 import j from './data/sentences/j.js';
 import k from './data/sentences/k.js';
 import l from './data/sentences/l.js';
+import nanbeng from './data/sentences/nanbeng.js';
 
-const sentencesMap = { a, b, c, d, e, f, g, h, i, j, k, l };
+const sentencesMap = { a, b, c, d, e, f, g, h, i, j, k, l, nanbeng };
 const categoryKeys = categories.map(c => c.key);
 
 export function getCategories() {

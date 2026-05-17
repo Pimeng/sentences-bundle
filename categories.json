@@ -106,5 +106,14 @@
     "created_at": "2020-05-15T11:05:31.663Z",
     "updated_at": "2020-05-15T11:06:22.007Z",
     "path": "./sentences/l.json"
+  },
+  {
+    "id": 13,
+    "name": "澜轶小卖部难绷语录",
+    "desc": "从澜轶小卖部那边要的难绷语录，挺难绷的",
+    "key": "nanbeng",
+    "created_at": "2026-05-17T13:06:32.564Z",
+    "updated_at": "2026-05-17T13:06:32.564Z",
+    "path": "./sentences/nanbeng.json"
   }
 ]
